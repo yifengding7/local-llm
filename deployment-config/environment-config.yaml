@@ -1,0 +1,466 @@
+# AI监理系统 v2.1 环境配置
+# 基于 Ultimate Fusion Scaffold 工业级Nix环境管理
+# 严格版本控制 + M3 Max硬件优化
+
+metadata:
+  name: "ai-monitor-v2.1-environment"
+  description: "工业级Nix环境管理配置"
+  scaffold_base: "/Users/imac/Documents/编程/脚手架/venv-scaffold.md"
+  target_system: "aarch64-darwin"
+  created_date: "2025-01-17"
+
+# Nix环境配置
+nix_environment:
+  flake_config:
+    inputs:
+      scaffold:
+        url: "github:your-org/env-scaffold-ultimate"
+        follows: "scaffold/nixpkgs"
+      nixpkgs:
+        url: "github:NixOS/nixpkgs/nixos-unstable"
+        
+  project_config:
+    # project.nix 配置
+    name: "ai-monitor-v2"
+    languages: ["python" "rust" "go" "mojo"]
+    features: ["ai-stack" "databases" "monitoring" "performance"]
+    
+    # AI专用配置
+    ai_config:
+      models: ["phi3-mini" "qwen:8b" "deepseek-coder"]
+      embedding_model: "qwen3-embedding-8b"
+      vector_db: "weaviate"
+      cache: "redis"
+      monitoring: "prometheus"
+      
+    # 企业级特性
+    enterprise:
+      security: true
+      performance_monitoring: true
+      auto_scaling: true
+      claude_commands: true
+      hook_system: true
+
+# 版本管理 (nix/versions.nix)
+version_management:
+  system_versions:
+    python: "3.13"
+    node: "20"
+    rust: "1.79.0"
+    go: "1.22"
+    mojo: "latest"
+    
+  ai_stack_versions:
+    fastapi: "0.116.1"
+    pydantic: "2.11.7"
+    uvicorn: "0.35.0"
+    ollama: "0.3.0"
+    weaviate: "1.25.0"
+    redis: "7.2.0"
+    postgresql: "15"
+    
+  python_packages:
+    # 核心框架
+    fastapi: "0.116.1"
+    pydantic: "2.11.7"
+    pydantic_settings: "2.3.4"
+    uvicorn: "0.35.0"
+    
+    # AI/LLM相关
+    ollama: "0.3.0"
+    openai: "1.35.3"
+    weaviate_client: "4.6.0"
+    
+    # 数据处理
+    numpy: "1.26.4"
+    pandas: "2.2.2"
+    
+    # 认证和安全
+    python_jose: "3.3.0"
+    passlib: "1.7.4"
+    python_multipart: "0.0.9"
+    
+    # HTTP客户端
+    httpx: "0.27.0"
+    aiofiles: "24.1.0"
+    
+    # 工具库
+    python_dotenv: "1.0.1"
+    loguru: "0.7.2"
+    click: "8.1.7"
+    rich: "13.7.1"
+    jinja2: "3.1.4"
+    pyyaml: "6.0.1"
+    
+    # 缓存和数据库
+    redis: "5.0.7"
+    cachetools: "5.3.3"
+    
+    # Git集成
+    gitpython: "3.1.43"
+    
+    # 监控
+    prometheus_client: "0.20.0"
+    psutil: "5.9.8"
+    
+    # 测试
+    pytest: "8.2.2"
+    pytest_asyncio: "0.23.7"
+    pytest_cov: "5.0.0"
+    
+    # 代码质量
+    black: "24.4.2"
+    ruff: "0.4.10"
+    mypy: "1.10.1"
+
+# Shell定义 (lib/shells.nix)
+shell_definitions:
+  base_shell:
+    name: "base"
+    packages: ["git" "gnumake" "direnv" "jq" "curl" "wget"]
+    
+  python_shell:
+    name: "python"
+    inherits_from: "base"
+    packages: ["python313" "uv" "ruff" "black" "mypy"]
+    
+  rust_shell:
+    name: "rust"
+    inherits_from: "base"
+    packages: ["rust-bin.stable.1.79.0.minimal" "rust-analyzer" "cargo"]
+    
+  go_shell:
+    name: "go"
+    inherits_from: "base"
+    packages: ["go_1_22" "gopls" "golangci-lint"]
+    
+  ai_stack_shell:
+    name: "ai-stack"
+    inherits_from: ["base" "python"]
+    packages:
+      - "ollama"
+      - "weaviate"
+      - "redis"
+      - "postgresql_15"
+      - "prometheus"
+      - "grafana"
+    shell_hook: |
+      echo "🤖 AI监理系统环境已激活"
+      echo "📦 FastAPI 0.116.1 | Pydantic 2.11.7"
+      echo "🚀 Ollama 0.3.0 | Redis | PostgreSQL | Weaviate"
+      echo "📊 Prometheus | Grafana"
+      
+      # 设置环境变量
+      export OLLAMA_HOST="http://localhost:11434"
+      export WEAVIATE_URL="http://localhost:8080"
+      export REDIS_URL="redis://localhost:6379"
+      export POSTGRES_URL="postgresql://localhost:5432"
+      
+      # 启动服务
+      echo "🔧 启动必要服务..."
+      ollama serve &
+      redis-server &
+      
+      # 集成Claude命令
+      export CLAUDE_COMMANDS_PATH="./claude-commands"
+      
+      # 性能监控
+      export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
+      
+  performance_shell:
+    name: "performance"
+    inherits_from: ["ai-stack"]
+    packages:
+      - "mojo"  # 需要特殊配置
+      - "llvm"
+      - "clang"
+      - "metal-cpp"
+    shell_hook: |
+      echo "🔥 极致性能环境已激活"
+      echo "⚡ Mojo | Rust | Go | Metal"
+      
+      # M3 Max优化
+      export MOJO_ENABLE_NEURAL_ENGINE=1
+      export METAL_DEVICE_WRAPPER_TYPE=1
+      export RUST_BACKTRACE=1
+      
+  databases_shell:
+    name: "databases"
+    inherits_from: "base"
+    packages: ["postgresql_15" "redis" "sqlite" "weaviate"]
+    
+  monitoring_shell:
+    name: "monitoring"
+    inherits_from: "base"
+    packages: ["prometheus" "grafana" "jaeger" "loki"]
+
+# 项目脚手架生成
+project_scaffold:
+  directory_structure:
+    root: "ai-monitor-v2"
+    directories:
+      - "frontend/gui"
+      - "frontend/cli"
+      - "frontend/web/api-docs"
+      - "api/auth"
+      - "api/endpoints"
+      - "api/models"
+      - "core/llm"
+      - "core/vector"
+      - "core/voice"
+      - "performance/mojo"
+      - "performance/rust/src"
+      - "performance/go"
+      - "infrastructure/scaffold"
+      - "infrastructure/logging"
+      - "infrastructure/config"
+      - "mcp/filesystem"
+      - "mcp/github"
+      - "mcp/plugins"
+      - "tests/unit"
+      - "tests/integration"
+      - "tests/performance"
+      - "docs/architecture"
+      - "docs/api"
+      - "docs/deployment"
+      - "scripts"
+      - "logs"
+      - "cache"
+      - "data"
+      
+  template_files:
+    - src: "templates/flake.nix"
+      dst: "flake.nix"
+    - src: "templates/project.nix"
+      dst: "project.nix"
+    - src: "templates/.envrc"
+      dst: ".envrc"
+    - src: "templates/devcontainer.json"
+      dst: ".devcontainer/devcontainer.json"
+    - src: "templates/Makefile"
+      dst: "Makefile"
+
+# 容器化配置
+containerization:
+  devcontainer:
+    name: "AI Monitor v2.1"
+    image: "mcr.microsoft.com/vscode/devcontainers/base:0-bullseye"
+    features:
+      nix:
+        version: "2"
+        install_flakes: true
+        
+    mounts:
+      - source: "nix-cache"
+        target: "/nix"
+        type: "volume"
+      - source: "ollama-models"
+        target: "/root/.ollama"
+        type: "volume"
+      - source: "weaviate-data"
+        target: "/var/lib/weaviate"
+        type: "volume"
+        
+    customizations:
+      vscode:
+        extensions:
+          - "ms-python.python"
+          - "ms-python.flake8"
+          - "ms-python.black-formatter"
+          - "rust-lang.rust-analyzer"
+          - "golang.go"
+          - "redhat.vscode-yaml"
+          - "ms-vscode.vscode-json"
+          
+    post_create_command: |
+      direnv allow
+      nix develop .#ai-stack
+      ollama serve &
+      
+  docker_compose:
+    version: "3.8"
+    services:
+      redis:
+        image: "redis:7-alpine"
+        ports: ["6379:6379"]
+        volumes: ["./data/redis:/data"]
+        
+      weaviate:
+        image: "semitechnologies/weaviate:1.25.0"
+        ports: ["8080:8080"]
+        environment:
+          PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+          DEFAULT_VECTORIZER_MODULE: "text2vec-transformers"
+        volumes: ["./data/weaviate:/var/lib/weaviate"]
+        
+      prometheus:
+        image: "prom/prometheus:latest"
+        ports: ["9090:9090"]
+        volumes: ["./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml"]
+        
+      grafana:
+        image: "grafana/grafana:latest"
+        ports: ["3000:3000"]
+        volumes: ["./data/grafana:/var/lib/grafana"]
+
+# M3 Max硬件优化
+hardware_optimization:
+  target_hardware: "Apple M3 Max"
+  
+  memory_configuration:
+    unified_memory: "64GB"
+    allocation_strategy:
+      vector_cache: "32GB"
+      model_weights: "8GB"
+      hnsw_index: "12GB"
+      runtime_buffer: "12GB"
+      
+  compute_configuration:
+    cpu_optimization:
+      performance_cores: 4
+      efficiency_cores: 8
+      threading_model: "work_stealing"
+      
+    gpu_optimization:
+      metal_performance_shaders: true
+      gpu_cores: 38
+      compute_units: 38
+      
+    neural_engine:
+      enabled: true
+      tops: 15.8
+      frameworks: ["CoreML" "BNNS"]
+      
+  compiler_optimizations:
+    rust:
+      target: "aarch64-apple-darwin"
+      features: ["+neon" "+crypto" "+aes"]
+      opt_level: "3"
+      lto: true
+      
+    go:
+      goos: "darwin"
+      goarch: "arm64"
+      cgo_enabled: true
+      
+    python:
+      implementation: "cpython"
+      optimizations: ["vectorization" "simd"]
+
+# 性能监控配置
+performance_monitoring:
+  metrics:
+    system_metrics:
+      - "cpu_usage"
+      - "memory_usage"
+      - "disk_io"
+      - "network_io"
+      - "gpu_usage"
+      - "neural_engine_usage"
+      
+    application_metrics:
+      - "api_response_time"
+      - "query_latency"
+      - "vector_search_performance"
+      - "model_inference_time"
+      - "cache_hit_rate"
+      
+  alerting:
+    thresholds:
+      query_latency: "50ms"
+      memory_usage: "80%"
+      cpu_usage: "85%"
+      error_rate: "1%"
+      
+  logging:
+    level: "INFO"
+    format: "structured"
+    destinations: ["console" "file" "prometheus"]
+
+# 开发者工作流
+developer_workflow:
+  initialization:
+    commands:
+      - "scaffold new ai-monitor-v2 -l python,rust,go --features ai-stack,performance"
+      - "cd ai-monitor-v2"
+      - "direnv allow"
+      - "nix develop .#ai-stack"
+      
+  daily_workflow:
+    setup:
+      - "cd ai-monitor-v2"
+      - "direnv allow"  # 自动激活环境
+      
+    development:
+      - "nix develop .#ai-stack"    # AI开发环境
+      - "nix develop .#performance" # 性能优化环境
+      - "nix develop .#monitoring"  # 监控环境
+      
+    testing:
+      - "make test"
+      - "make benchmark"
+      - "make validate"
+      
+    deployment:
+      - "make build"
+      - "make deploy"
+      - "make monitor"
+
+# 环境升级和维护
+maintenance:
+  upgrade_strategy:
+    mother_template:
+      command: "scaffold upgrade"
+      frequency: "monthly"
+      
+    dependencies:
+      command: "nix flake lock --update-all"
+      frequency: "weekly"
+      
+    models:
+      command: "ollama pull phi3-mini:latest"
+      frequency: "bi-weekly"
+      
+  backup_strategy:
+    nix_store: "automatic"
+    project_data: "daily"
+    models: "weekly"
+    
+  monitoring:
+    health_checks: "continuous"
+    performance_regression: "automated"
+    security_updates: "automated"
+
+# 镜像和加速
+mirrors_and_acceleration:
+  china_mirrors:
+    enabled: true
+    trigger_file: "~/.use-china-mirrors"
+    
+  cachix:
+    cache_name: "ai-monitor-dev"
+    public_key: "ai-monitor-dev.cachix.org-1:..."
+    
+  build_acceleration:
+    parallel_builds: 8
+    cache_hits: "maximize"
+    network_optimization: true
+
+# 错误处理和故障恢复
+error_handling:
+  environment_corruption:
+    action: "rebuild_from_flake"
+    rollback: "automatic"
+    
+  dependency_conflicts:
+    action: "strict_version_lock"
+    resolution: "manual_override"
+    
+  hardware_incompatibility:
+    action: "fallback_configuration"
+    notification: "immediate"
+    
+  performance_degradation:
+    threshold: "2x_baseline"
+    action: "environment_reset"
+    investigation: "automatic"

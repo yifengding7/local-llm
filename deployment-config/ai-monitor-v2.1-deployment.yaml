@@ -1,0 +1,373 @@
+# AI监理系统 v2.1 完整部署配置
+# 严格按照 ai-monitor-architecture.html 蓝图执行
+# 版本: 2025年最新技术栈 + M3 Max硬件优化
+
+metadata:
+  name: "ai-monitor-v2.1"
+  version: "2.1.0"
+  description: "AI监理系统完整部署方案"
+  architecture_blueprint: "/Users/imac/Library/Mobile Documents/com~apple~CloudDocs/ai/ai-monitor-architecture.html"
+  created_date: "2025-01-17"
+  target_platform: "Apple M3 Max"
+  deployment_strategy: "zero-downtime"
+
+# 强制版本约束 - 2025年最新稳定版本
+version_constraints:
+  mandatory_versions:
+    python: "3.13"
+    fastapi: "0.116.1"
+    pydantic: "2.11.7"
+    uvicorn: "0.35.0"
+    ollama: "0.3.0"
+    weaviate: "1.25.0"
+    rust: "1.79.0"
+    go: "1.22"
+    mojo: "latest"
+    
+  ai_models:
+    local_models:
+      - "phi3-mini"
+      - "qwen:8b"
+      - "deepseek-coder"
+    embedding_model: "qwen3-embedding-8b"
+    remote_models:
+      - "claude-3.5-sonnet"
+      
+  error_handling:
+    on_version_mismatch: "ERROR_UNSUPPORTED_VERSION"
+    strict_mode: true
+
+# 六层架构完整定义
+architecture:
+  layers:
+    # 第1层: 前端展示层
+    presentation_layer:
+      name: "前端展示层"
+      icon: "🖥️"
+      components:
+        gui_desktop:
+          name: "GUI桌面应用"
+          path: "frontend/gui/gui_menu.py"
+          technology: "Python tkinter"
+          description: "基于tkinter的图形化界面"
+          
+        cli_interface:
+          name: "命令行界面"
+          path: "frontend/cli/menu.sh"
+          technology: "Bash Script"
+          description: "Shell脚本菜单系统"
+          
+        web_api_docs:
+          name: "Web API文档"
+          path: "frontend/web/api-docs/"
+          technology: "Swagger UI"
+          description: "FastAPI自动生成的交互式API文档"
+
+    # 第2层: API服务层
+    api_service_layer:
+      name: "API服务层"
+      icon: "🔌"
+      components:
+        restful_api:
+          name: "RESTful API"
+          path: "api/main.py"
+          technology: ["FastAPI", "Uvicorn", "JWT Auth"]
+          description: "OpenAI兼容的API接口"
+          
+        intelligent_router:
+          name: "智能路由器"
+          path: "api/router.py"
+          technology: ["router.py", "TaskType", "ModelConfig"]
+          description: "根据任务类型智能分配到不同的AI模型"
+          
+        monitor_agent:
+          name: "监理代理"
+          path: "api/monitor_agent.py"
+          technology: ["monitor_agent.py", "GitPython", "Auto-patch"]
+          description: "自动检查代码规范并生成修复补丁"
+
+    # 第3层: 核心引擎层
+    core_engine_layer:
+      name: "核心引擎层"
+      icon: "⚙️"
+      components:
+        llm_runtime:
+          name: "LLM运行时"
+          path: "core/llm/"
+          technology: ["Ollama", "phi3-mini", "qwen:8b", "deepseek-coder"]
+          description: "本地大语言模型运行环境"
+          
+        vector_engine:
+          name: "极致向量引擎"
+          path: "core/vector/"
+          technology: ["Weaviate", "Qwen3-Embedding-8B", "HNSW索引", "混合检索"]
+          description: "高性能向量检索，<50ms查询延迟"
+          performance_target: "<50ms"
+          
+        voice_service:
+          name: "语音服务"
+          path: "core/voice/"
+          technology: ["TTS Service", "System Voice"]
+          description: "文本转语音功能"
+
+    # 第4层: 极致性能层
+    performance_layer:
+      name: "极致性能层"
+      icon: "🔥"
+      critical: true
+      components:
+        mojo_ai_compute:
+          name: "Mojo AI计算"
+          path: "performance/mojo/"
+          technology: ["Mojo语言", "Metal GPU", "神经引擎", "SIMD优化"]
+          description: "超级性能AI计算，利用M3 Max神经引擎15.8 TOPS"
+          hardware_target: "15.8 TOPS"
+          
+        rust_zero_delay:
+          name: "Rust零延迟引擎"
+          path: "performance/rust/"
+          technology: ["Rust", "64GB统一内存", "12核并行", "零GC"]
+          description: "零拷贝内存管理，Tokio+Rayon双引擎并发"
+          
+        go_lightning_api:
+          name: "Go闪电API"
+          path: "performance/go/"
+          technology: ["Go Fiber", "gRPC", "100k并发", "10ms P50"]
+          description: "Fiber框架极速路由，无限QPS支持"
+          performance_target: "10ms P50"
+
+    # 第5层: 基础设施层
+    infrastructure_layer:
+      name: "基础设施层"
+      icon: "🏗️"
+      components:
+        scaffold_system:
+          name: "脚手架系统"
+          path: "infrastructure/scaffold/"
+          technology: ["Scaffold Hub", "规则引擎"]
+          description: "三大核心脚手架：环境搭建、项目结构、AI协作"
+          
+        logging_system:
+          name: "日志系统"
+          path: "infrastructure/logging/"
+          technology: ["Loguru", "AI决策日志"]
+          description: "结构化日志记录，支持监控和调试"
+          
+        config_management:
+          name: "配置管理"
+          path: "infrastructure/config/"
+          technology: ["JSON Config", "环境变量"]
+          description: "集中式配置管理，支持热更新"
+
+    # 第6层: MCP集成层
+    mcp_integration_layer:
+      name: "MCP集成层"
+      icon: "🔗"
+      components:
+        filesystem_access:
+          name: "文件系统访问"
+          path: "mcp/filesystem/"
+          technology: "@modelcontextprotocol/server-filesystem"
+          description: "多路径文件系统服务器"
+          
+        github_integration:
+          name: "GitHub集成"
+          path: "mcp/github/"
+          technology: "@modelcontextprotocol/server-github"
+          description: "代码仓库管理和协作"
+          
+        plugin_system:
+          name: "扩展能力"
+          path: "mcp/plugins/"
+          technology: ["MCP Installer", "Plugin System"]
+          description: "支持更多MCP工具的动态集成"
+
+# M3 Max硬件优化配置
+hardware_optimization:
+  target_hardware: "Apple M3 Max"
+  unified_memory_architecture:
+    total_memory: "64GB"
+    allocation:
+      vector_cache: "32GB"
+      model_weights: "8GB"
+      hnsw_index: "12GB"
+      runtime_buffer: "12GB"
+      
+  heterogeneous_computing:
+    cpu_cores:
+      performance_cores: 4
+      efficiency_cores: 8
+    gpu_cores: 38
+    neural_engine_tops: 15.8
+    metal_compute: true
+    
+  performance_targets:
+    query_latency: "<50ms"
+    vector_capacity: "10M"
+    qps: "unlimited"
+    memory_bandwidth: "400GB/s"
+    p99_latency: "50ms"
+
+# 数据流向定义
+data_flow:
+  sequence:
+    - step: "用户请求"
+      handler: "frontend"
+      next: "api_auth"
+      
+    - step: "API认证"
+      handler: "api/auth/jwt_handler.py"
+      next: "task_routing"
+      
+    - step: "任务路由"
+      handler: "api/router.py"
+      next: "model_processing"
+      
+    - step: "模型处理"
+      handler: "core/llm/ollama_client.py"
+      next: "result_return"
+      
+    - step: "结果返回"
+      handler: "api/main.py"
+      next: "end"
+
+# 部署阶段定义
+deployment_phases:
+  phase_1:
+    name: "基础架构搭建"
+    duration: "15分钟"
+    tasks:
+      - "创建完整6层目录结构"
+      - "配置Apple M3 Max硬件优化"
+      - "集成MCP协议层"
+      - "设置Nix环境脚手架"
+      
+  phase_2:
+    name: "核心引擎实现"
+    duration: "25分钟"
+    tasks:
+      - "Ollama集成: phi3-mini, qwen:8b, deepseek-coder"
+      - "Weaviate向量引擎: Qwen3-Embedding-8B + HNSW索引"
+      - "智能路由器: TaskType自动分配"
+      - "监理代理: GitPython + Auto-patch"
+      
+  phase_3:
+    name: "极致性能层实现"
+    duration: "30分钟"
+    tasks:
+      - "Mojo AI计算: 神经引擎15.8TOPS优化"
+      - "Rust零延迟引擎: 64GB统一内存零拷贝"
+      - "Go闪电API: 100k并发+10ms P50延迟"
+      - "Metal GPU优化: 38核GPU计算"
+      
+  phase_4:
+    name: "企业级集成"
+    duration: "15分钟"
+    tasks:
+      - "90个Claude专业命令集成"
+      - "Hook系统配置"
+      - "监控和日志系统"
+      - "自动化测试验证"
+      
+  phase_5:
+    name: "性能验证"
+    duration: "10分钟"
+    tasks:
+      - "<50ms查询延迟验证"
+      - "千万向量容量测试"
+      - "无限QPS压力测试"
+      - "M3 Max硬件利用率检查"
+
+# 环境管理 (基于Nix脚手架)
+environment_management:
+  nix_config:
+    project_name: "ai-monitor-v2"
+    languages: ["python", "rust", "go", "mojo"]
+    features: ["ai-stack", "performance", "mcp"]
+    
+  hardware_optimization:
+    apple_m3_max: true
+    unified_memory: "64GB"
+    neural_engine: "15.8TOPS"
+    
+  virtual_environment:
+    type: "nix-shell"
+    isolation: "complete"
+    cache_strategy: "cachix"
+
+# 企业级功能集成
+enterprise_features:
+  claude_commands:
+    total_commands: 90
+    categories:
+      - "project_management"
+      - "development_tools"
+      - "testing_tools"
+      - "security_audit"
+      - "performance_optimization"
+      - "deployment_release"
+      - "integration_sync"
+      - "documentation_generation"
+      - "configuration_setup"
+      - "team_collaboration"
+      
+  hook_system:
+    pre_tool_use: "plan_gatekeeper"
+    post_tool_use: "auto_format_quality_check"
+    stop: "auto_work_summary"
+    notification: "real_time_alerts"
+    
+  monitoring:
+    prometheus: true
+    grafana: true
+    otel: true
+    log_aggregation: "loki"
+
+# 验证和测试
+validation:
+  architecture_compliance:
+    blueprint_match: "100%"
+    layer_completeness: "all_6_layers"
+    component_verification: "strict"
+    
+  performance_benchmarks:
+    query_latency: "<50ms"
+    vector_capacity: "10M+"
+    concurrent_users: "unlimited"
+    memory_utilization: "optimized"
+    
+  functional_tests:
+    api_endpoints: "all"
+    ai_models: "all_configured"
+    vector_search: "performance"
+    mcp_integration: "complete"
+
+# 错误处理和回滚
+error_handling:
+  validation_failures:
+    action: "abort_deployment"
+    rollback: "automatic"
+    
+  performance_degradation:
+    threshold: "100ms"
+    action: "alert_and_investigate"
+    
+  dependency_conflicts:
+    action: "strict_version_enforcement"
+    fallback: "none"
+
+# 成功指标
+success_metrics:
+  architecture_compliance: "100%"
+  performance_targets: "all_met"
+  enterprise_features: "complete"
+  technology_modernization: "2025_standard"
+  deployment_time: "95_minutes"
+  zero_downtime: true
+  
+# 后续维护
+maintenance:
+  update_strategy: "rolling_updates"
+  backup_strategy: "incremental"
+  monitoring_alerts: "real_time"
+  documentation: "auto_generated"

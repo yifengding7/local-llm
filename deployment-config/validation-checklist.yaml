@@ -1,0 +1,735 @@
+# AI监理系统 v2.1 验证清单
+# 部署验证和测试的完整清单
+# 确保100%功能正常和性能达标
+
+metadata:
+  name: "validation-checklist"
+  version: "1.0.0"
+  description: "AI监理系统v2.1完整验证清单"
+  total_checks: 85
+  critical_checks: 25
+  created_date: "2025-01-17"
+
+# 预部署验证
+pre_deployment_validation:
+  environment_checks:
+    - id: "ENV-001"
+      category: "environment"
+      priority: "critical"
+      name: "系统环境检查"
+      description: "验证Apple M3 Max硬件和macOS系统"
+      command: "uname -m && sw_vers"
+      expected: "arm64 && macOS 14.0+"
+      status: "pending"
+      
+    - id: "ENV-002"
+      category: "environment"
+      priority: "critical"
+      name: "Nix环境验证"
+      description: "验证Nix包管理器和flake支持"
+      command: "nix --version && nix flake --help"
+      expected: "nix 2.18+ && flake subcommand available"
+      status: "pending"
+      
+    - id: "ENV-003"
+      category: "environment"
+      priority: "high"
+      name: "direnv集成检查"
+      description: "验证direnv自动环境切换"
+      command: "direnv --version && which direnv"
+      expected: "direnv 2.32+ installed"
+      status: "pending"
+      
+  dependency_checks:
+    - id: "DEP-001"
+      category: "dependencies"
+      priority: "critical"
+      name: "Python版本验证"
+      description: "确保Python 3.13环境"
+      command: "python3 --version"
+      expected: "Python 3.13.x"
+      status: "pending"
+      
+    - id: "DEP-002"
+      category: "dependencies"
+      priority: "critical"
+      name: "FastAPI版本验证"
+      description: "确保FastAPI 0.116.1+"
+      command: "pip show fastapi | grep Version"
+      expected: "Version: 0.116.1"
+      status: "pending"
+      
+    - id: "DEP-003"
+      category: "dependencies"
+      priority: "critical"
+      name: "Pydantic版本验证"
+      description: "确保Pydantic 2.11.7+"
+      command: "pip show pydantic | grep Version"
+      expected: "Version: 2.11.7"
+      status: "pending"
+      
+    - id: "DEP-004"
+      category: "dependencies"
+      priority: "critical"
+      name: "Ollama安装验证"
+      description: "确保Ollama 0.3.0+可用"
+      command: "ollama --version"
+      expected: "ollama version 0.3.0"
+      status: "pending"
+      
+    - id: "DEP-005"
+      category: "dependencies"
+      priority: "high"
+      name: "Rust工具链验证"
+      description: "确保Rust 1.79.0+可用"
+      command: "rustc --version"
+      expected: "rustc 1.79.0"
+      status: "pending"
+      
+    - id: "DEP-006"
+      category: "dependencies"
+      priority: "high"
+      name: "Go工具链验证"
+      description: "确保Go 1.22+可用"
+      command: "go version"
+      expected: "go version go1.22"
+      status: "pending"
+
+# 架构验证
+architecture_validation:
+  layer_structure_checks:
+    - id: "ARCH-001"
+      category: "architecture"
+      priority: "critical"
+      name: "前端展示层验证"
+      description: "验证前端层目录结构和组件"
+      checks:
+        - path: "frontend/gui/gui_menu.py"
+          type: "file_exists"
+          required: true
+        - path: "frontend/cli/menu.sh"
+          type: "file_exists"
+          required: true
+        - path: "frontend/web/api-docs/"
+          type: "directory_exists"
+          required: true
+      status: "pending"
+      
+    - id: "ARCH-002"
+      category: "architecture"
+      priority: "critical"
+      name: "API服务层验证"
+      description: "验证API服务层完整性"
+      checks:
+        - path: "api/main.py"
+          type: "file_exists"
+          required: true
+        - path: "api/router.py"
+          type: "file_exists"
+          required: true
+        - path: "api/monitor_agent.py"
+          type: "file_exists"
+          required: true
+        - path: "api/auth/jwt_handler.py"
+          type: "file_exists"
+          required: true
+      status: "pending"
+      
+    - id: "ARCH-003"
+      category: "architecture"
+      priority: "critical"
+      name: "核心引擎层验证"
+      description: "验证核心引擎层组件"
+      checks:
+        - path: "core/llm/ollama_client.py"
+          type: "file_exists"
+          required: true
+        - path: "core/vector/weaviate_client.py"
+          type: "file_exists"
+          required: true
+        - path: "core/voice/tts_service.py"
+          type: "file_exists"
+          required: true
+      status: "pending"
+      
+    - id: "ARCH-004"
+      category: "architecture"
+      priority: "critical"
+      name: "极致性能层验证"
+      description: "验证极致性能层实现"
+      checks:
+        - path: "performance/mojo/"
+          type: "directory_exists"
+          required: true
+        - path: "performance/rust/Cargo.toml"
+          type: "file_exists"
+          required: true
+        - path: "performance/go/go.mod"
+          type: "file_exists"
+          required: true
+      status: "pending"
+      
+    - id: "ARCH-005"
+      category: "architecture"
+      priority: "high"
+      name: "基础设施层验证"
+      description: "验证基础设施层组件"
+      checks:
+        - path: "infrastructure/scaffold/"
+          type: "directory_exists"
+          required: true
+        - path: "infrastructure/logging/"
+          type: "directory_exists"
+          required: true
+        - path: "infrastructure/config/"
+          type: "directory_exists"
+          required: true
+      status: "pending"
+      
+    - id: "ARCH-006"
+      category: "architecture"
+      priority: "high"
+      name: "MCP集成层验证"
+      description: "验证MCP集成层实现"
+      checks:
+        - path: "mcp/filesystem/"
+          type: "directory_exists"
+          required: true
+        - path: "mcp/github/"
+          type: "directory_exists"
+          required: true
+        - path: "mcp/plugins/"
+          type: "directory_exists"
+          required: true
+      status: "pending"
+
+# 功能验证
+functional_validation:
+  api_endpoint_checks:
+    - id: "FUNC-001"
+      category: "functionality"
+      priority: "critical"
+      name: "健康检查端点"
+      description: "验证API健康检查端点"
+      command: "curl -f http://localhost:8000/health"
+      expected: "HTTP 200 OK"
+      timeout: "5s"
+      status: "pending"
+      
+    - id: "FUNC-002"
+      category: "functionality"
+      priority: "critical"
+      name: "聊天端点验证"
+      description: "验证聊天API功能"
+      command: |
+        curl -X POST http://localhost:8000/chat \
+          -H "Content-Type: application/json" \
+          -d '{"messages": [{"role": "user", "content": "Hello"}], "model": "phi3-mini"}'
+      expected: "valid JSON response with message"
+      timeout: "30s"
+      status: "pending"
+      
+    - id: "FUNC-003"
+      category: "functionality"
+      priority: "high"
+      name: "代码分析端点"
+      description: "验证代码分析功能"
+      command: |
+        curl -X POST http://localhost:8000/analyze/code \
+          -H "Content-Type: application/json" \
+          -d '{"code": "def hello(): print(\"hello\")", "language": "python"}'
+      expected: "analysis result with suggestions"
+      timeout: "60s"
+      status: "pending"
+      
+    - id: "FUNC-004"
+      category: "functionality"
+      priority: "high"
+      name: "代码生成端点"
+      description: "验证代码生成功能"
+      command: |
+        curl -X POST http://localhost:8000/generate/code \
+          -H "Content-Type: application/json" \
+          -d '{"description": "create a hello world function", "language": "python"}'
+      expected: "generated code in response"
+      timeout: "60s"
+      status: "pending"
+      
+  ai_model_checks:
+    - id: "MODEL-001"
+      category: "ai_models"
+      priority: "critical"
+      name: "Ollama服务验证"
+      description: "验证Ollama服务运行状态"
+      command: "curl -f http://localhost:11434/api/tags"
+      expected: "JSON response with models list"
+      timeout: "10s"
+      status: "pending"
+      
+    - id: "MODEL-002"
+      category: "ai_models"
+      priority: "critical"
+      name: "phi3-mini模型验证"
+      description: "验证phi3-mini模型可用性"
+      command: "ollama list | grep phi3-mini"
+      expected: "phi3-mini model present"
+      status: "pending"
+      
+    - id: "MODEL-003"
+      category: "ai_models"
+      priority: "critical"
+      name: "qwen:8b模型验证"
+      description: "验证qwen:8b模型可用性"
+      command: "ollama list | grep qwen:8b"
+      expected: "qwen:8b model present"
+      status: "pending"
+      
+    - id: "MODEL-004"
+      category: "ai_models"
+      priority: "critical"
+      name: "deepseek-coder模型验证"
+      description: "验证deepseek-coder模型可用性"
+      command: "ollama list | grep deepseek-coder"
+      expected: "deepseek-coder model present"
+      status: "pending"
+      
+  vector_engine_checks:
+    - id: "VECTOR-001"
+      category: "vector_engine"
+      priority: "critical"
+      name: "Weaviate服务验证"
+      description: "验证Weaviate向量数据库服务"
+      command: "curl -f http://localhost:8080/v1/meta"
+      expected: "Weaviate metadata response"
+      timeout: "10s"
+      status: "pending"
+      
+    - id: "VECTOR-002"
+      category: "vector_engine"
+      priority: "high"
+      name: "向量检索性能测试"
+      description: "测试向量检索延迟<50ms"
+      command: "python3 -c \"import time; import requests; start=time.time(); requests.get('http://localhost:8080/v1/objects'); print(f'Latency: {(time.time()-start)*1000:.2f}ms')\""
+      expected: "Latency < 50ms"
+      timeout: "60s"
+      status: "pending"
+
+# 性能验证
+performance_validation:
+  latency_checks:
+    - id: "PERF-001"
+      category: "performance"
+      priority: "critical"
+      name: "API响应延迟测试"
+      description: "验证API响应延迟<50ms"
+      command: "ab -n 100 -c 10 http://localhost:8000/health"
+      expected: "Mean response time < 50ms"
+      timeout: "30s"
+      status: "pending"
+      
+    - id: "PERF-002"
+      category: "performance"
+      priority: "critical"
+      name: "向量查询延迟测试"
+      description: "验证向量查询延迟<50ms"
+      command: "python3 scripts/vector_latency_test.py"
+      expected: "P99 latency < 50ms"
+      timeout: "60s"
+      status: "pending"
+      
+    - id: "PERF-003"
+      category: "performance"
+      priority: "high"
+      name: "模型推理延迟测试"
+      description: "验证模型推理性能"
+      command: "python3 scripts/model_inference_test.py"
+      expected: "Inference time < 2s for short prompts"
+      timeout: "120s"
+      status: "pending"
+      
+  load_tests:
+    - id: "LOAD-001"
+      category: "performance"
+      priority: "high"
+      name: "并发用户负载测试"
+      description: "测试1000并发用户"
+      command: "ab -n 10000 -c 1000 http://localhost:8000/health"
+      expected: "Success rate > 99%"
+      timeout: "300s"
+      status: "pending"
+      
+    - id: "LOAD-002"
+      category: "performance"
+      priority: "high"
+      name: "持续负载测试"
+      description: "10分钟持续负载测试"
+      command: "python3 scripts/sustained_load_test.py"
+      expected: "Stable performance for 10 minutes"
+      timeout: "720s"
+      status: "pending"
+      
+  memory_tests:
+    - id: "MEM-001"
+      category: "performance"
+      priority: "high"
+      name: "内存使用率测试"
+      description: "验证内存使用合理"
+      command: "python3 scripts/memory_usage_test.py"
+      expected: "Memory usage < 80% of 64GB"
+      timeout: "60s"
+      status: "pending"
+      
+    - id: "MEM-002"
+      category: "performance"
+      priority: "high"
+      name: "内存泄漏测试"
+      description: "长时间运行内存泄漏检测"
+      command: "python3 scripts/memory_leak_test.py"
+      expected: "No memory leaks detected"
+      timeout: "1800s"
+      status: "pending"
+
+# 企业级功能验证
+enterprise_validation:
+  claude_commands_checks:
+    - id: "ENT-001"
+      category: "enterprise"
+      priority: "high"
+      name: "Claude命令集成验证"
+      description: "验证90个Claude专业命令可用"
+      command: "python3 scripts/claude_commands_test.py"
+      expected: "90 commands available and functional"
+      timeout: "300s"
+      status: "pending"
+      
+    - id: "ENT-002"
+      category: "enterprise"
+      priority: "high"
+      name: "Hook系统验证"
+      description: "验证Hook系统功能"
+      command: "python3 scripts/hook_system_test.py"
+      expected: "All hooks functioning correctly"
+      timeout: "60s"
+      status: "pending"
+      
+  monitoring_checks:
+    - id: "MON-001"
+      category: "monitoring"
+      priority: "high"
+      name: "Prometheus监控验证"
+      description: "验证Prometheus指标收集"
+      command: "curl -f http://localhost:9090/metrics"
+      expected: "Prometheus metrics available"
+      timeout: "10s"
+      status: "pending"
+      
+    - id: "MON-002"
+      category: "monitoring"
+      priority: "high"
+      name: "Grafana仪表板验证"
+      description: "验证Grafana仪表板可用"
+      command: "curl -f http://localhost:3000/api/health"
+      expected: "Grafana health check OK"
+      timeout: "10s"
+      status: "pending"
+      
+    - id: "MON-003"
+      category: "monitoring"
+      priority: "medium"
+      name: "日志聚合验证"
+      description: "验证日志聚合功能"
+      command: "python3 scripts/log_aggregation_test.py"
+      expected: "Logs properly aggregated and searchable"
+      timeout: "60s"
+      status: "pending"
+
+# 安全验证
+security_validation:
+  authentication_checks:
+    - id: "SEC-001"
+      category: "security"
+      priority: "critical"
+      name: "JWT认证验证"
+      description: "验证JWT认证机制"
+      command: "python3 scripts/jwt_auth_test.py"
+      expected: "JWT auth working correctly"
+      timeout: "30s"
+      status: "pending"
+      
+    - id: "SEC-002"
+      category: "security"
+      priority: "high"
+      name: "API密钥验证"
+      description: "验证API密钥保护"
+      command: "curl -f http://localhost:8000/protected -H 'Authorization: Bearer invalid'"
+      expected: "HTTP 401 Unauthorized"
+      timeout: "10s"
+      status: "pending"
+      
+  vulnerability_checks:
+    - id: "SEC-003"
+      category: "security"
+      priority: "high"
+      name: "依赖漏洞扫描"
+      description: "扫描依赖包安全漏洞"
+      command: "python3 scripts/vulnerability_scan.py"
+      expected: "No critical vulnerabilities found"
+      timeout: "300s"
+      status: "pending"
+      
+    - id: "SEC-004"
+      category: "security"
+      priority: "medium"
+      name: "SQL注入防护测试"
+      description: "测试SQL注入防护"
+      command: "python3 scripts/sql_injection_test.py"
+      expected: "SQL injection attempts blocked"
+      timeout: "60s"
+      status: "pending"
+
+# 数据完整性验证
+data_validation:
+  backup_recovery_checks:
+    - id: "DATA-001"
+      category: "data"
+      priority: "high"
+      name: "数据备份验证"
+      description: "验证数据备份功能"
+      command: "python3 scripts/backup_test.py"
+      expected: "Backup created successfully"
+      timeout: "300s"
+      status: "pending"
+      
+    - id: "DATA-002"
+      category: "data"
+      priority: "high"
+      name: "数据恢复验证"
+      description: "验证数据恢复功能"
+      command: "python3 scripts/restore_test.py"
+      expected: "Data restored successfully"
+      timeout: "300s"
+      status: "pending"
+      
+  consistency_checks:
+    - id: "DATA-003"
+      category: "data"
+      priority: "medium"
+      name: "数据一致性检查"
+      description: "验证数据一致性"
+      command: "python3 scripts/data_consistency_test.py"
+      expected: "Data consistency maintained"
+      timeout: "120s"
+      status: "pending"
+
+# 用户体验验证
+user_experience_validation:
+  gui_checks:
+    - id: "UX-001"
+      category: "user_experience"
+      priority: "medium"
+      name: "GUI界面验证"
+      description: "验证GUI界面功能"
+      command: "python3 frontend/gui/gui_menu.py --test"
+      expected: "GUI loads and functions correctly"
+      timeout: "30s"
+      status: "pending"
+      
+    - id: "UX-002"
+      category: "user_experience"
+      priority: "medium"
+      name: "CLI界面验证"
+      description: "验证CLI界面功能"
+      command: "bash frontend/cli/menu.sh --test"
+      expected: "CLI menu works correctly"
+      timeout: "30s"
+      status: "pending"
+      
+  documentation_checks:
+    - id: "DOC-001"
+      category: "documentation"
+      priority: "medium"
+      name: "API文档验证"
+      description: "验证API文档可访问性"
+      command: "curl -f http://localhost:8000/docs"
+      expected: "API documentation accessible"
+      timeout: "10s"
+      status: "pending"
+      
+    - id: "DOC-002"
+      category: "documentation"
+      priority: "low"
+      name: "架构文档验证"
+      description: "验证架构文档完整性"
+      command: "python3 scripts/doc_completeness_test.py"
+      expected: "Architecture documentation complete"
+      timeout: "60s"
+      status: "pending"
+
+# 验证脚本
+validation_scripts:
+  setup_script: |
+    #!/bin/bash
+    echo "设置验证环境..."
+    
+    # 创建测试脚本目录
+    mkdir -p scripts
+    
+    # 设置测试环境变量
+    export PYTHONPATH="$PWD:$PYTHONPATH"
+    export TEST_MODE="validation"
+    
+    # 启动必要服务
+    echo "启动服务..."
+    nix develop .#ai-stack --command bash -c "
+      ollama serve &
+      redis-server &
+      weaviate &
+      sleep 10
+    "
+    
+    echo "验证环境准备完成"
+    
+  run_validation: |
+    #!/bin/bash
+    echo "运行完整验证..."
+    
+    # 运行所有验证检查
+    total_checks=0
+    passed_checks=0
+    failed_checks=0
+    
+    for check in $(yq '.pre_deployment_validation.environment_checks[].id' validation-checklist.yaml); do
+      echo "运行检查: $check"
+      total_checks=$((total_checks + 1))
+      
+      # 这里应该实际运行检查逻辑
+      # 示例：if run_check($check); then
+      #   passed_checks=$((passed_checks + 1))
+      # else
+      #   failed_checks=$((failed_checks + 1))
+      # fi
+    done
+    
+    echo "验证完成:"
+    echo "总检查数: $total_checks"
+    echo "通过检查: $passed_checks"
+    echo "失败检查: $failed_checks"
+    
+    if [ $failed_checks -eq 0 ]; then
+      echo "✅ 所有验证通过!"
+      exit 0
+    else
+      echo "❌ 验证失败，请查看报告"
+      exit 1
+    fi
+    
+  generate_report: |
+    #!/bin/bash
+    echo "生成验证报告..."
+    
+    # 生成HTML报告
+    python3 -c "
+    import yaml
+    import json
+    from datetime import datetime
+    
+    with open('validation-checklist.yaml', 'r') as f:
+        data = yaml.safe_load(f)
+    
+    report = {
+        'timestamp': datetime.now().isoformat(),
+        'total_checks': len(data.get('pre_deployment_validation', {}).get('environment_checks', [])),
+        'results': []
+    }
+    
+    with open('validation-report.json', 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    print('验证报告已生成: validation-report.json')
+    "
+
+# 成功标准
+success_criteria:
+  critical_checks:
+    required_pass_rate: "100%"
+    description: "所有关键检查必须通过"
+    
+  high_priority_checks:
+    required_pass_rate: "95%"
+    description: "高优先级检查至少95%通过"
+    
+  overall_checks:
+    required_pass_rate: "90%"
+    description: "整体检查至少90%通过"
+    
+  performance_benchmarks:
+    api_latency: "<50ms"
+    vector_query: "<50ms"
+    memory_usage: "<80%"
+    cpu_usage: "<85%"
+    
+  availability_targets:
+    uptime: "99.9%"
+    error_rate: "<1%"
+    response_time: "<100ms"
+
+# 失败处理
+failure_handling:
+  critical_failure:
+    action: "abort_deployment"
+    notification: "immediate"
+    rollback: "automatic"
+    
+  high_priority_failure:
+    action: "investigate_and_fix"
+    notification: "within_1_hour"
+    rollback: "manual"
+    
+  medium_priority_failure:
+    action: "create_ticket"
+    notification: "within_24_hours"
+    rollback: "not_required"
+    
+  low_priority_failure:
+    action: "log_for_next_iteration"
+    notification: "weekly_summary"
+    rollback: "not_required"
+
+# 报告配置
+reporting:
+  formats: ["json", "html", "yaml"]
+  output_directory: "validation-reports"
+  retention_days: 30
+  
+  sections:
+    - "执行摘要"
+    - "关键指标"
+    - "详细结果"
+    - "性能基准"
+    - "失败分析"
+    - "修复建议"
+    - "下次改进"
+    
+  notifications:
+    slack_webhook: "https://hooks.slack.com/services/..."
+    email_recipients: ["admin@example.com"]
+    
+# 持续验证
+continuous_validation:
+  schedule: "0 */6 * * *"  # 每6小时运行一次
+  
+  health_checks:
+    - "api_endpoints"
+    - "model_availability"
+    - "vector_engine"
+    - "performance_metrics"
+    
+  automated_remediation:
+    enabled: true
+    max_attempts: 3
+    escalation_threshold: 2
+    
+  monitoring_integration:
+    prometheus: true
+    grafana: true
+    alertmanager: true

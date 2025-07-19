@@ -1,0 +1,536 @@
+# AI监理系统 v2.1 架构合规检查配置
+# 严格按照 ai-monitor-architecture.html 蓝图进行合规性验证
+# 确保100%架构一致性，零偏差部署
+
+metadata:
+  name: "architecture-compliance-checker"
+  version: "1.0.0"
+  description: "AI监理系统架构合规性检查和验证"
+  blueprint_source: "/Users/imac/Library/Mobile Documents/com~apple~CloudDocs/ai/ai-monitor-architecture.html"
+  compliance_level: "strict"
+  created_date: "2025-01-17"
+
+# 架构蓝图规范定义
+architecture_blueprint:
+  required_layers:
+    count: 6
+    sequence:
+      - name: "前端展示层"
+        icon: "🖥️"
+        english_name: "Presentation Layer"
+        mandatory: true
+        
+      - name: "API服务层"
+        icon: "🔌"
+        english_name: "API Service Layer"
+        mandatory: true
+        
+      - name: "核心引擎层"
+        icon: "⚙️"
+        english_name: "Core Engine Layer"
+        mandatory: true
+        
+      - name: "极致性能层"
+        icon: "🔥"
+        english_name: "Ultimate Performance Layer"
+        mandatory: true
+        critical: true
+        
+      - name: "基础设施层"
+        icon: "🏗️"
+        english_name: "Infrastructure Layer"
+        mandatory: true
+        
+      - name: "MCP集成层"
+        icon: "🔗"
+        english_name: "MCP Integration Layer"
+        mandatory: true
+
+# 分层组件合规检查
+layer_compliance:
+  presentation_layer:
+    required_components:
+      - name: "GUI桌面应用"
+        path: "frontend/gui/gui_menu.py"
+        technology: "Python tkinter"
+        description: "基于tkinter的图形化界面"
+        validation:
+          file_exists: true
+          imports_required: ["tkinter"]
+          
+      - name: "命令行界面"
+        path: "frontend/cli/menu.sh"
+        technology: "Bash Script"
+        description: "Shell脚本菜单系统"
+        validation:
+          file_exists: true
+          executable: true
+          shebang: "#!/bin/bash"
+          
+      - name: "Web API文档"
+        path: "frontend/web/api-docs/"
+        technology: "Swagger UI"
+        description: "FastAPI自动生成的交互式API文档"
+        validation:
+          directory_exists: true
+          swagger_ui_enabled: true
+          
+  api_service_layer:
+    required_components:
+      - name: "RESTful API"
+        path: "api/main.py"
+        technology: ["FastAPI", "Uvicorn", "JWT Auth"]
+        description: "OpenAI兼容的API接口"
+        validation:
+          file_exists: true
+          fastapi_version: ">=0.116.1"
+          openai_compatible: true
+          jwt_auth_enabled: true
+          
+      - name: "智能路由器"
+        path: "api/router.py"
+        technology: ["router.py", "TaskType", "ModelConfig"]
+        description: "根据任务类型智能分配到不同的AI模型"
+        validation:
+          file_exists: true
+          task_type_enum: true
+          model_config_class: true
+          routing_logic: true
+          
+      - name: "监理代理"
+        path: "api/monitor_agent.py"
+        technology: ["monitor_agent.py", "GitPython", "Auto-patch"]
+        description: "自动检查代码规范并生成修复补丁"
+        validation:
+          file_exists: true
+          gitpython_integration: true
+          auto_patch_capability: true
+          
+  core_engine_layer:
+    required_components:
+      - name: "LLM运行时"
+        path: "core/llm/"
+        technology: ["Ollama", "phi3-mini", "qwen:8b", "deepseek-coder"]
+        description: "本地大语言模型运行环境"
+        validation:
+          directory_exists: true
+          ollama_client: true
+          required_models: ["phi3-mini", "qwen:8b", "deepseek-coder"]
+          model_manager: true
+          
+      - name: "极致向量引擎"
+        path: "core/vector/"
+        technology: ["Weaviate", "Qwen3-Embedding-8B", "HNSW索引", "混合检索"]
+        description: "高性能向量检索，<50ms查询延迟"
+        validation:
+          directory_exists: true
+          weaviate_client: true
+          embedding_model: "qwen3-embedding-8b"
+          hnsw_index: true
+          query_latency: "<50ms"
+          
+      - name: "语音服务"
+        path: "core/voice/"
+        technology: ["TTS Service", "System Voice"]
+        description: "文本转语音功能"
+        validation:
+          directory_exists: true
+          tts_service: true
+          system_voice_integration: true
+          
+  performance_layer:
+    required_components:
+      - name: "Mojo AI计算"
+        path: "performance/mojo/"
+        technology: ["Mojo语言", "Metal GPU", "神经引擎", "SIMD优化"]
+        description: "超级性能AI计算，利用M3 Max神经引擎15.8 TOPS"
+        validation:
+          directory_exists: true
+          mojo_files: true
+          metal_gpu_integration: true
+          neural_engine_usage: true
+          simd_optimization: true
+          tops_target: "15.8"
+          
+      - name: "Rust零延迟引擎"
+        path: "performance/rust/"
+        technology: ["Rust", "64GB统一内存", "12核并行", "零GC"]
+        description: "零拷贝内存管理，Tokio+Rayon双引擎并发"
+        validation:
+          directory_exists: true
+          cargo_toml: true
+          tokio_integration: true
+          rayon_integration: true
+          zero_copy_memory: true
+          
+      - name: "Go闪电API"
+        path: "performance/go/"
+        technology: ["Go Fiber", "gRPC", "100k并发", "10ms P50"]
+        description: "Fiber框架极速路由，无限QPS支持"
+        validation:
+          directory_exists: true
+          go_mod: true
+          fiber_framework: true
+          grpc_service: true
+          concurrency_target: "100k"
+          latency_target: "10ms"
+          
+  infrastructure_layer:
+    required_components:
+      - name: "脚手架系统"
+        path: "infrastructure/scaffold/"
+        technology: ["Scaffold Hub", "规则引擎"]
+        description: "三大核心脚手架：环境搭建、项目结构、AI协作"
+        validation:
+          directory_exists: true
+          scaffold_hub: true
+          rules_engine: true
+          three_core_scaffolds: true
+          
+      - name: "日志系统"
+        path: "infrastructure/logging/"
+        technology: ["Loguru", "AI决策日志"]
+        description: "结构化日志记录，支持监控和调试"
+        validation:
+          directory_exists: true
+          loguru_integration: true
+          ai_decision_logging: true
+          structured_logging: true
+          
+      - name: "配置管理"
+        path: "infrastructure/config/"
+        technology: ["JSON Config", "环境变量"]
+        description: "集中式配置管理，支持热更新"
+        validation:
+          directory_exists: true
+          json_config: true
+          env_variables: true
+          hot_reload: true
+          
+  mcp_integration_layer:
+    required_components:
+      - name: "文件系统访问"
+        path: "mcp/filesystem/"
+        technology: "@modelcontextprotocol/server-filesystem"
+        description: "多路径文件系统服务器"
+        validation:
+          directory_exists: true
+          mcp_filesystem_server: true
+          
+      - name: "GitHub集成"
+        path: "mcp/github/"
+        technology: "@modelcontextprotocol/server-github"
+        description: "代码仓库管理和协作"
+        validation:
+          directory_exists: true
+          mcp_github_server: true
+          
+      - name: "扩展能力"
+        path: "mcp/plugins/"
+        technology: ["MCP Installer", "Plugin System"]
+        description: "支持更多MCP工具的动态集成"
+        validation:
+          directory_exists: true
+          mcp_installer: true
+          plugin_system: true
+
+# 数据流向合规检查
+data_flow_compliance:
+  required_sequence:
+    - step: "用户请求"
+      handler: "frontend"
+      validation:
+        entry_point: true
+        request_validation: true
+        
+    - step: "API认证"
+      handler: "api/auth/jwt_handler.py"
+      validation:
+        jwt_implementation: true
+        token_validation: true
+        
+    - step: "任务路由"
+      handler: "api/router.py"
+      validation:
+        task_type_detection: true
+        model_selection: true
+        
+    - step: "模型处理"
+      handler: "core/llm/ollama_client.py"
+      validation:
+        model_invocation: true
+        response_generation: true
+        
+    - step: "结果返回"
+      handler: "api/main.py"
+      validation:
+        response_formatting: true
+        error_handling: true
+
+# 性能目标合规检查
+performance_compliance:
+  hardware_optimization:
+    target_hardware: "Apple M3 Max"
+    validation:
+      hardware_detection: true
+      optimization_enabled: true
+      
+  memory_allocation:
+    unified_memory: "64GB"
+    allocations:
+      vector_cache: "32GB"
+      model_weights: "8GB"
+      hnsw_index: "12GB"
+      runtime_buffer: "12GB"
+    validation:
+      memory_allocation_correct: true
+      uma_utilization: true
+      
+  performance_targets:
+    query_latency: "<50ms"
+    vector_capacity: "10M"
+    qps: "unlimited"
+    memory_bandwidth: "400GB/s"
+    validation:
+      latency_benchmark: true
+      capacity_test: true
+      qps_test: true
+      bandwidth_test: true
+
+# 技术栈合规检查
+technology_stack_compliance:
+  version_requirements:
+    python: "3.13"
+    fastapi: "0.116.1"
+    pydantic: "2.11.7"
+    uvicorn: "0.35.0"
+    ollama: "0.3.0"
+    weaviate: "1.25.0"
+    rust: "1.79.0"
+    go: "1.22"
+    mojo: "latest"
+    
+  ai_models:
+    required_models:
+      - "phi3-mini"
+      - "qwen:8b"
+      - "deepseek-coder"
+    embedding_model: "qwen3-embedding-8b"
+    
+  validation_rules:
+    version_check: "strict"
+    model_availability: "required"
+    compatibility_check: "mandatory"
+
+# 企业级功能合规检查
+enterprise_compliance:
+  claude_commands:
+    total_required: 90
+    categories:
+      - "project_management"
+      - "development_tools"
+      - "testing_tools"
+      - "security_audit"
+      - "performance_optimization"
+      - "deployment_release"
+      - "integration_sync"
+      - "documentation_generation"
+      - "configuration_setup"
+      - "team_collaboration"
+      
+  hook_system:
+    required_hooks:
+      - "pre_tool_use"
+      - "post_tool_use"
+      - "stop"
+      - "notification"
+      
+  monitoring:
+    required_components:
+      - "prometheus"
+      - "grafana"
+      - "otel"
+      - "log_aggregation"
+
+# 合规检查规则
+compliance_rules:
+  critical_violations:
+    - name: "缺失极致性能层"
+      description: "极致性能层是架构的核心，必须完整实现"
+      severity: "critical"
+      action: "abort_deployment"
+      
+    - name: "版本不符合要求"
+      description: "所有组件版本必须符合2025年最新标准"
+      severity: "critical"
+      action: "force_upgrade"
+      
+    - name: "性能目标未达标"
+      description: "查询延迟必须<50ms"
+      severity: "critical"
+      action: "performance_tuning"
+      
+  warning_violations:
+    - name: "文档不完整"
+      description: "API文档或架构文档缺失"
+      severity: "warning"
+      action: "generate_documentation"
+      
+    - name: "测试覆盖率不足"
+      description: "测试覆盖率低于90%"
+      severity: "warning"
+      action: "improve_testing"
+
+# 自动化检查脚本
+automated_checks:
+  directory_structure:
+    script: |
+      #!/bin/bash
+      echo "检查目录结构..."
+      
+      # 检查6层架构目录
+      layers=(
+        "frontend/gui"
+        "frontend/cli"
+        "frontend/web"
+        "api/auth"
+        "api/endpoints"
+        "core/llm"
+        "core/vector"
+        "core/voice"
+        "performance/mojo"
+        "performance/rust"
+        "performance/go"
+        "infrastructure/scaffold"
+        "infrastructure/logging"
+        "infrastructure/config"
+        "mcp/filesystem"
+        "mcp/github"
+        "mcp/plugins"
+      )
+      
+      for layer in "${layers[@]}"; do
+        if [ ! -d "$layer" ]; then
+          echo "❌ 缺失目录: $layer"
+          exit 1
+        else
+          echo "✅ 目录存在: $layer"
+        fi
+      done
+      
+  version_check:
+    script: |
+      #!/bin/bash
+      echo "检查版本合规性..."
+      
+      # 检查Python版本
+      python_version=$(python3 --version | cut -d' ' -f2)
+      if [[ "$python_version" < "3.13" ]]; then
+        echo "❌ Python版本过低: $python_version (需要3.13+)"
+        exit 1
+      fi
+      
+      # 检查FastAPI版本
+      fastapi_version=$(pip show fastapi | grep Version | cut -d' ' -f2)
+      if [[ "$fastapi_version" < "0.116.1" ]]; then
+        echo "❌ FastAPI版本过低: $fastapi_version (需要0.116.1+)"
+        exit 1
+      fi
+      
+      echo "✅ 版本检查通过"
+      
+  performance_benchmark:
+    script: |
+      #!/bin/bash
+      echo "性能基准测试..."
+      
+      # 查询延迟测试
+      latency=$(curl -w "%{time_total}" -s -o /dev/null http://localhost:8000/health)
+      if (( $(echo "$latency > 0.05" | bc -l) )); then
+        echo "❌ 查询延迟过高: ${latency}s (需要<0.05s)"
+        exit 1
+      fi
+      
+      echo "✅ 性能测试通过"
+      
+  model_availability:
+    script: |
+      #!/bin/bash
+      echo "检查AI模型可用性..."
+      
+      required_models=("phi3-mini" "qwen:8b" "deepseek-coder")
+      
+      for model in "${required_models[@]}"; do
+        if ! ollama list | grep -q "$model"; then
+          echo "❌ 缺失模型: $model"
+          exit 1
+        else
+          echo "✅ 模型可用: $model"
+        fi
+      done
+
+# 修复建议
+remediation_suggestions:
+  missing_performance_layer:
+    description: "极致性能层缺失"
+    solution: |
+      1. 创建performance/目录结构
+      2. 实现Mojo AI计算模块
+      3. 实现Rust零延迟引擎
+      4. 实现Go闪电API
+      5. 配置M3 Max硬件优化
+      
+  version_mismatch:
+    description: "版本不匹配"
+    solution: |
+      1. 更新requirements.txt
+      2. 重新构建Nix环境
+      3. 验证所有依赖版本
+      4. 运行兼容性测试
+      
+  performance_degradation:
+    description: "性能不达标"
+    solution: |
+      1. 检查M3 Max硬件优化
+      2. 优化向量索引配置
+      3. 调整内存分配
+      4. 启用并行处理
+      
+  missing_components:
+    description: "组件缺失"
+    solution: |
+      1. 按架构图补充缺失组件
+      2. 实现所有必需接口
+      3. 配置组件间通信
+      4. 运行集成测试
+
+# 报告生成
+compliance_report:
+  format: "html"
+  sections:
+    - "执行摘要"
+    - "架构合规性"
+    - "性能基准"
+    - "技术栈验证"
+    - "企业级功能"
+    - "修复建议"
+    - "验证清单"
+    
+  output_path: "compliance-report.html"
+  auto_generate: true
+  
+# 持续监控
+continuous_monitoring:
+  schedule: "hourly"
+  alerts:
+    - type: "architecture_drift"
+      threshold: "any_deviation"
+      action: "immediate_alert"
+      
+    - type: "performance_regression"
+      threshold: "10%_degradation"
+      action: "investigation"
+      
+    - type: "version_outdated"
+      threshold: "30_days"
+      action: "upgrade_reminder"
