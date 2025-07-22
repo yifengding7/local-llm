@@ -1,0 +1,74 @@
+version: "3.9"
+services:
+  ai-monitor:
+    build: .
+    container_name: ai-monitor
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - WEAVIATE_URL=http://weaviate:8080
+      - PYTHONPATH=/app
+    volumes:
+      - ./monitoring/logs:/app/logs
+      - ./ai-monitor:/app/ai-monitor
+    depends_on:
+      - ollama
+      - weaviate
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    
+  go-api:
+    build: ./ai-monitor/performance/go
+    container_name: go-api
+    ports:
+      - "3001:3001"
+    environment:
+      - AI_MONITOR_URL=http://ai-monitor:8000
+    depends_on:
+      - ai-monitor
+    restart: unless-stopped
+    
+  rust-engine:
+    build: ./ai-monitor/performance/rust
+    container_name: rust-engine
+    ports:
+      - "3002:3002"
+    environment:
+      - AI_MONITOR_URL=http://ai-monitor:8000
+    depends_on:
+      - ai-monitor
+    restart: unless-stopped
+    
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    
+  weaviate:
+    image: semitechnologies/weaviate:1.24.8
+    container_name: weaviate
+    environment:
+      - QUERY_DEFAULTS_LIMIT=25
+      - DEFAULT_VECTORIZER_MODULE=none
+      - CLUSTER_HOSTNAME=node1
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    
+volumes:
+  ollama_data:
+  weaviate_data: 

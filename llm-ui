@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# LLM UI 快速启动命令
+# 一个命令启动整个AI监理系统UI
+
+set -e
+
+# 颜色定义
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+# 项目路径
+PROJECT_DIR="/Users/imac/Documents/编程/项目/本地llm项目"
+UI_FILE="$PROJECT_DIR/control_panel_simple.html"
+
+# 清晰的启动动画
+show_startup() {
+    echo -e "${CYAN}"
+    echo "  _     _     __  __   _   _ ___ "
+    echo " | |   | |   |  \/  | | | | |_ _|"
+    echo " | |   | |   | |\/| | | | | || | "
+    echo " | |___| |___| |  | | | |_| || | "
+    echo " |_____|_____|_|  |_|  \___/|___|"
+    echo -e "${NC}"
+    echo -e "${GREEN}🚀 AI监理系统控制台${NC}"
+    echo ""
+}
+
+# 主函数
+main() {
+    show_startup
+    
+    # 检查UI文件是否存在
+    if [ ! -f "$UI_FILE" ]; then
+        echo -e "${YELLOW}⚠️  UI文件未找到，正在创建...${NC}"
+        # 这里可以触发重新生成UI文件的逻辑
+        exit 1
+    fi
+    
+    # 根据操作系统打开浏览器
+    echo -e "${BLUE}正在启动控制台...${NC}"
+    
+    case "$OSTYPE" in
+        darwin*)
+            # macOS
+            open "$UI_FILE"
+            ;;
+        linux*)
+            # Linux
+            if command -v xdg-open &> /dev/null; then
+                xdg-open "$UI_FILE"
+            elif command -v gnome-open &> /dev/null; then
+                gnome-open "$UI_FILE"
+            else
+                echo -e "${YELLOW}请手动打开: $UI_FILE${NC}"
+            fi
+            ;;
+        *)
+            echo -e "${YELLOW}未知操作系统，请手动打开: $UI_FILE${NC}"
+            ;;
+    esac
+    
+    echo -e "${GREEN}✨ 控制台已启动！${NC}"
+    echo ""
+    echo -e "${CYAN}提示：${NC}"
+    echo "  • 点击 '全部启动' 可一键启动所有服务"
+    echo "  • 使用 'llm start' 启动后端服务"
+    echo "  • 使用 'llm stop' 停止所有服务"
+    echo ""
+}
+
+# 执行主函数
+main

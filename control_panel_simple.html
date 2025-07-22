@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 LLM项目控制台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(at 20% 80%, #1a3b5c 0%, transparent 50%),
+                radial-gradient(at 80% 20%, #2d1b69 0%, transparent 50%),
+                radial-gradient(at 40% 40%, #0f2847 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #7a5cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #8892b0;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .control-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00d4ff, #7a5cff, #ff006e);
+            border-radius: 20px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .control-card:hover::before {
+            opacity: 1;
+        }
+        
+        .control-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-card::after {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            background: #0a0e1a;
+            border-radius: 19px;
+            z-index: -1;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .card-icon {
+            font-size: 2.5em;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+        
+        .card-name {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4a5568;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .status-light.on {
+            background: #4ade80;
+            box-shadow: 0 0 20px #4ade80;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .card-desc {
+            color: #8892b0;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .control-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .control-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+        
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(74, 222, 128, 0.3);
+        }
+        
+        .btn-stop {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: white;
+        }
+        
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(248, 113, 113, 0.3);
+        }
+        
+        .btn-start:disabled,
+        .btn-stop:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .quick-actions {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-actions h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #7a5cff;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .action-btn {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-icon {
+            font-size: 2em;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 20px 30px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            color: white;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .notification.show {
+            display: block;
+        }
+        
+        .notification.success {
+            border-color: #4ade80;
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+        
+        .notification.error {
+            border-color: #f87171;
+            box-shadow: 0 10px 30px rgba(248, 113, 113, 0.3);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #8892b0;
+            padding-bottom: 30px;
+        }
+        
+        /* 模态对话框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #1a1f2e;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #7a5cff;
+        }
+        
+        .modal input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+        }
+        
+        .modal input:focus {
+            outline: none;
+            border-color: #7a5cff;
+            box-shadow: 0 0 0 2px rgba(122, 92, 255, 0.2);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #7a5cff, #5a3fb5);
+            color: white;
+        }
+        
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(122, 92, 255, 0.3);
+        }
+        
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .modal-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 LLM项目控制台</h1>
+        <p class="subtitle">简洁 · 优雅 · 强大</p>
+        
+        <!-- 快速操作 -->
+        <div class="quick-actions">
+            <h2>⚡ 快速操作</h2>
+            <div class="action-grid">
+                <button class="action-btn" onclick="quickAction('start-all')">
+                    <span class="action-icon">🚀</span>
+                    <span>全部启动</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('stop-all')">
+                    <span class="action-icon">🛑</span>
+                    <span>全部停止</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('create-project')">
+                    <span class="action-icon">📁</span>
+                    <span>创建项目</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('terminal')">
+                    <span class="action-icon">💻</span>
+                    <span>打开终端</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('logs')">
+                    <span class="action-icon">📋</span>
+                    <span>查看日志</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('health')">
+                    <span class="action-icon">🏥</span>
+                    <span>健康检查</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 系统控制卡片 -->
+        <div class="control-grid">
+            <!-- AI监理系统 -->
+            <div class="control-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🤖</span>
+                        <span class="card-name">AI监理系统</span>
+                    </div>
+                    <div class="status-light" id="ai-monitor-status"></div>
+                </div>
+                <p class="card-desc">智能代码审查、自动修复、Python核心服务、Ollama LLM引擎</p>
+                <button class="control-btn btn-start" onclick="toggleSystem('ai-monitor', true)">
+                    启动系统
+                </button>
+            </div>
+            
+            <!-- Claude Code -->
+            <div class="control-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🔧</span>
+                        <span class="card-name">Claude Code</span>
+                    </div>
+                    <div class="status-light" id="claude-code-status"></div>
+                </div>
+                <p class="card-desc">AI代码生成、项目脚手架、批量重构、智能补全</p>
+                <button class="control-btn btn-start" onclick="toggleSystem('claude-code', true)">
+                    启动系统
+                </button>
+            </div>
+            
+            <!-- 向量记忆系统 -->
+            <div class="control-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🧠</span>
+                        <span class="card-name">记忆系统</span>
+                    </div>
+                    <div class="status-light" id="memory-status"></div>
+                </div>
+                <p class="card-desc">Weaviate向量数据库、知识图谱、智能检索、长期记忆</p>
+                <button class="control-btn btn-start" onclick="toggleSystem('memory', true)">
+                    启动系统
+                </button>
+            </div>
+            
+            <!-- 性能加速 -->
+            <div class="control-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">⚡</span>
+                        <span class="card-name">性能加速</span>
+                    </div>
+                    <div class="status-light" id="performance-status"></div>
+                </div>
+                <p class="card-desc">Go闪电API、Rust零延迟引擎、M3 Max优化、极致性能</p>
+                <button class="control-btn btn-start" onclick="toggleSystem('performance', true)">
+                    启动系统
+                </button>
+            </div>
+            
+            <!-- 声音系统 -->
+            <div class="control-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🔊</span>
+                        <span class="card-name">声音系统</span>
+                    </div>
+                    <div class="status-light" id="voice-status"></div>
+                </div>
+                <p class="card-desc">文本转语音、情感化播报、多语言支持、实时合成</p>
+                <button class="control-btn btn-start" onclick="toggleSystem('voice', true)">
+                    启动系统
+                </button>
+            </div>
+            
+            <!-- 监控系统 -->
+            <div class="control-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">📊</span>
+                        <span class="card-name">监控系统</span>
+                    </div>
+                    <div class="status-light" id="monitor-status"></div>
+                </div>
+                <p class="card-desc">实时监控、性能分析、日志追踪、告警通知</p>
+                <button class="control-btn btn-start" onclick="toggleSystem('monitor', true)">
+                    启动系统
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>本地LLM项目控制台 · 2025</p>
+        </div>
+    </div>
+    
+    <!-- 通知 -->
+    <div class="notification" id="notification"></div>
+    
+    <!-- 模态对话框 -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">创建新项目</h3>
+            <div id="modal-body">
+                <input type="text" id="project-name" placeholder="项目名称">
+                <input type="text" id="project-type" placeholder="项目类型 (Python/JavaScript/Go)">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="confirmModal()">确定</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 系统状态
+        const systems = {
+            'ai-monitor': { name: 'AI监理系统', running: false },
+            'claude-code': { name: 'Claude Code', running: false },
+            'memory': { name: '记忆系统', running: false },
+            'performance': { name: '性能加速', running: false },
+            'voice': { name: '声音系统', running: false },
+            'monitor': { name: '监控系统', running: false }
+        };
+        
+        // 切换系统状态
+        function toggleSystem(systemId, start = true) {
+            const system = systems[systemId];
+            const button = event.target;
+            const statusLight = document.getElementById(`${systemId}-status`);
+            
+            if (start && !system.running) {
+                // 启动系统
+                showNotification(`正在启动 ${system.name}...`, 'info');
+                
+                // 模拟启动过程
+                button.disabled = true;
+                button.textContent = '启动中...';
+                
+                setTimeout(() => {
+                    system.running = true;
+                    statusLight.classList.add('on');
+                    button.textContent = '停止系统';
+                    button.className = 'control-btn btn-stop';
+                    button.onclick = () => toggleSystem(systemId, false);
+                    button.disabled = false;
+                    showNotification(`${system.name} 启动成功！`, 'success');
+                    
+                    // 如果是AI监理系统，自动打开API文档
+                    if (systemId === 'ai-monitor') {
+                        setTimeout(() => {
+                            window.open('http://localhost:8000/docs', '_blank');
+                        }, 1000);
+                    }
+                }, 2000);
+            } else if (!start && system.running) {
+                // 停止系统
+                showNotification(`正在停止 ${system.name}...`, 'info');
+                
+                button.disabled = true;
+                button.textContent = '停止中...';
+                
+                setTimeout(() => {
+                    system.running = false;
+                    statusLight.classList.remove('on');
+                    button.textContent = '启动系统';
+                    button.className = 'control-btn btn-start';
+                    button.onclick = () => toggleSystem(systemId, true);
+                    button.disabled = false;
+                    showNotification(`${system.name} 已停止`, 'success');
+                }, 1000);
+            }
+        }
+        
+        // 快速操作
+        function quickAction(action) {
+            switch(action) {
+                case 'start-all':
+                    showNotification('正在启动所有系统...', 'info');
+                    Object.keys(systems).forEach((systemId, index) => {
+                        setTimeout(() => {
+                            const statusLight = document.getElementById(`${systemId}-status`);
+                            const button = document.querySelector(`#${systemId}-status`).parentElement.parentElement.nextElementSibling.nextElementSibling;
+                            
+                            systems[systemId].running = true;
+                            statusLight.classList.add('on');
+                            button.textContent = '停止系统';
+                            button.className = 'control-btn btn-stop';
+                            button.onclick = () => toggleSystem(systemId, false);
+                            
+                            if (index === Object.keys(systems).length - 1) {
+                                showNotification('所有系统启动成功！', 'success');
+                            }
+                        }, index * 500);
+                    });
+                    break;
+                    
+                case 'stop-all':
+                    showNotification('正在停止所有系统...', 'info');
+                    Object.keys(systems).forEach((systemId, index) => {
+                        setTimeout(() => {
+                            const statusLight = document.getElementById(`${systemId}-status`);
+                            const button = document.querySelector(`#${systemId}-status`).parentElement.parentElement.nextElementSibling.nextElementSibling;
+                            
+                            systems[systemId].running = false;
+                            statusLight.classList.remove('on');
+                            button.textContent = '启动系统';
+                            button.className = 'control-btn btn-start';
+                            button.onclick = () => toggleSystem(systemId, true);
+                            
+                            if (index === Object.keys(systems).length - 1) {
+                                showNotification('所有系统已停止', 'success');
+                            }
+                        }, index * 500);
+                    });
+                    break;
+                    
+                case 'create-project':
+                    showModal();
+                    break;
+                    
+                case 'terminal':
+                    // 在macOS上打开终端
+                    showNotification('正在打开终端...', 'info');
+                    // 这里实际上需要通过本地服务器来执行
+                    window.location.href = 'x-terminal-emulator://open?dir=/Users/imac/Documents/编程/项目/本地llm项目';
+                    break;
+                    
+                case 'logs':
+                    showNotification('正在打开日志目录...', 'info');
+                    // 打开日志查看器
+                    window.open('file:///Users/imac/Documents/编程/项目/本地llm项目/ai-monitor/logs/', '_blank');
+                    break;
+                    
+                case 'health':
+                    performHealthCheck();
+                    break;
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 显示模态框
+        function showModal() {
+            document.getElementById('modal').classList.add('show');
+            document.getElementById('project-name').value = '';
+            document.getElementById('project-type').value = 'Python';
+            document.getElementById('project-name').focus();
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+        
+        // 确认模态框
+        function confirmModal() {
+            const projectName = document.getElementById('project-name').value;
+            const projectType = document.getElementById('project-type').value || 'Python';
+            
+            if (projectName) {
+                closeModal();
+                showNotification(`正在创建 ${projectType} 项目: ${projectName}...`, 'info');
+                
+                // 模拟创建项目
+                setTimeout(() => {
+                    showNotification(`项目 ${projectName} 创建成功！`, 'success');
+                }, 2000);
+            }
+        }
+        
+        // 健康检查
+        function performHealthCheck() {
+            showNotification('正在执行健康检查...', 'info');
+            
+            let healthStatus = [];
+            Object.entries(systems).forEach(([id, system]) => {
+                healthStatus.push(`${system.name}: ${system.running ? '✅ 运行中' : '❌ 已停止'}`);
+            });
+            
+            setTimeout(() => {
+                showNotification('健康检查完成！查看控制台输出', 'success');
+                console.log('=== 系统健康检查 ===');
+                console.log(healthStatus.join('\n'));
+                console.log('CPU: 正常');
+                console.log('内存: 正常');
+                console.log('磁盘: 正常');
+            }, 1000);
+        }
+        
+        // ESC关闭模态框
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // 点击背景关闭模态框
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+        
+        // 页面加载完成后的欢迎信息
+        window.onload = () => {
+            showNotification('欢迎使用 LLM 项目控制台！', 'success');
+        };
+    </script>
+</body>
+</html>

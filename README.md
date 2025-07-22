@@ -1,293 +1,148 @@
-# AI监理系统 - 本地部署指南
+# 本地LLM项目 - AI监理系统 v2.2
 
-## 🚨 重要说明
+> **统一架构 | 高性能 | 企业级**  
+> 集成AI监理系统、Claude Code集成系统(CCIS)和多语言性能层的现代化本地LLM平台
 
-原始的安装脚本中很多包版本已经过时。这里提供修复后的安装方案。
+![Project Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
+![Version](https://img.shields.io/badge/Version-2.2.0-blue)
+![Python](https://img.shields.io/badge/Python-3.12%2B-yellow)
+![Go](https://img.shields.io/badge/Go-1.22%2B-cyan)
+![Rust](https://img.shields.io/badge/Rust-1.70%2B-orange)
 
-## 🛠️ 快速开始（推荐）
+## 🚀 项目概述
 
-### 1. 运行诊断工具
+本项目是一个多语言、多层次的本地AI监理系统，通过统一架构整合了以下核心组件：
 
-首先检查你的系统环境：
+- **AI监理系统 v2.2**：基于FastAPI 0.116.1的现代化Python核心服务
+- **Claude Code集成系统(CCIS)**：统一的AI代码生成和分析工具
+- **多语言性能层**：Go高并发API + Rust零延迟计算引擎  
+- **企业级控制中心**：统一服务管理和监控平台
+- **容器化部署**：Docker Compose完整服务编排
 
-```bash
-python3 diagnose.py
-```
-
-这会告诉你缺少什么以及如何修复。
-
-### 2. 最简安装（5分钟）
-
-如果你只想快速体验：
-
-```bash
-chmod +x quick_install.sh
-./quick_install.sh
-```
-
-这会创建一个最小化的API服务在 `~/ai-monitor-mini`
-
-### 3. 完整安装（修复版）
-
-如果需要完整功能：
-
-```bash
-chmod +x install_fixed.sh
-./install_fixed.sh
-```
-
-## 📋 手动安装步骤
+## 🚀 快速开始
 
 ### 前置要求
 
-1. **安装Homebrew**（如果没有）:
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
+- Docker 和 Docker Compose
+- Python 3.12+
+- Poetry (Python包管理)
 
-2. **安装必要工具**:
-   ```bash
-   brew install python@3.11 ollama git
-   ```
-
-3. **安装Docker**（可选）:
-   ```bash
-   brew install --cask docker
-   open /Applications/Docker.app
-   ```
-
-### 基础安装
-
-1. **创建项目目录**:
-   ```bash
-   mkdir -p ~/ai-monitor-local
-   cd ~/ai-monitor-local
-   ```
-
-2. **创建虚拟环境**:
-   ```bash
-   python3.11 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **安装Python包**（一个一个安装以避免冲突）:
-   ```bash
-   pip install --upgrade pip
-   pip install fastapi==0.111.0
-   pip install uvicorn[standard]==0.30.1
-   pip install httpx==0.27.0
-   pip install pydantic==2.7.4
-   pip install ollama==0.3.0
-   pip install python-dotenv==1.0.1
-   ```
-
-4. **设置Ollama**:
-   ```bash
-   # 启动Ollama服务
-   ollama serve
-   
-   # 在新终端中下载模型
-   ollama pull llama3.2            # 3.2B参数，较快
-   ollama pull qwen2.5-coder:1.5b  # 代码模型，1.5B
-   ollama pull phi3:mini           # 微软小模型，3.8B
-   ```
-
-### 运行测试
-
-1. **创建测试文件** `test_api.py`:
-   ```python
-   import httpx
-   import asyncio
-   
-   async def test():
-       async with httpx.AsyncClient() as client:
-           # 测试Ollama
-           response = await client.get("http://localhost:11434/api/tags")
-           print("Ollama模型:", response.json())
-   
-   asyncio.run(test())
-   ```
-
-2. **运行测试**:
-   ```bash
-   python test_api.py
-   ```
-
-## 🐛 常见问题
-
-### 1. "包版本冲突"
-
-**问题**: `pip install` 报告版本冲突
-
-**解决**:
-```bash
-# 使用 --force-reinstall
-pip install --force-reinstall package_name==version
-
-# 或者创建新的虚拟环境
-rm -rf venv
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 2. "Ollama连接失败"
-
-**问题**: 无法连接到 `http://localhost:11434`
-
-**解决**:
-```bash
-# 检查Ollama是否运行
-ps aux | grep ollama
-
-# 如果没有，启动它
-ollama serve
-
-# 检查端口
-lsof -i :11434
-```
-
-### 3. "Python版本问题"
-
-**问题**: Python版本不兼容
-
-**解决**:
-```bash
-# 安装特定版本
-brew install python@3.11
-
-# 使用特定版本创建虚拟环境
-/usr/local/bin/python3.11 -m venv venv
-```
-
-### 4. "Docker未运行"
-
-**问题**: Docker服务未启动
-
-**解决**:
-```bash
-# 启动Docker Desktop
-open /Applications/Docker.app
-
-# 或者不使用Docker，只用本地服务
-```
-
-## 🏗️ 项目结构
-
-```
-ai-monitor-local/
-├── venv/                # Python虚拟环境
-├── api/                 # API模块
-│   ├── main.py         # FastAPI主程序
-│   ├── router.py       # 路由管理
-│   └── models.py       # 数据模型
-├── core/               # 核心功能
-│   ├── llm/           # LLM客户端
-│   └── vector/        # 向量数据库
-├── logs/              # 日志文件
-├── cache/             # 缓存目录
-├── .env               # 环境配置
-├── requirements.txt   # Python依赖
-└── start.sh          # 启动脚本
-```
-
-## 🚀 启动服务
-
-### 最简启动
+### 一键启动
 
 ```bash
-cd ~/ai-monitor-mini
-./start.sh
+# 启动所有服务
+./control_center.sh
+
+# 或使用Docker Compose
+docker compose up -d
 ```
 
-访问:
-- API: http://localhost:8000
-- 文档: http://localhost:8000/docs
+### 验证部署
 
-### 完整启动
+```bash
+# 检查核心服务状态
+curl http://localhost:8000/health    # Python核心服务
+curl http://localhost:11434/health   # Ollama LLM引擎  
+curl http://localhost:8080/v1/meta   # Weaviate向量库
+```
 
-1. 启动Ollama:
-   ```bash
-   ollama serve
-   ```
+## 📋 系统架构
 
-2. 启动API服务:
-   ```bash
-   cd ~/ai-monitor-local
-   source venv/bin/activate
-   uvicorn api.main:app --reload
-   ```
+### 核心服务层
+- **Python核心服务** (端口8000): FastAPI 0.116.1主API服务
+- **Ollama LLM** (端口11434): 本地大语言模型推理引擎
+- **Weaviate** (端口8080): 向量数据库和语义搜索
 
-3. （可选）启动Redis:
-   ```bash
-   docker run -p 6379:6379 redis:7-alpine
-   ```
+### 性能加速层
+- **Go微服务** (端口3001): 高并发API处理
+- **Rust引擎** (端口3002): 零延迟计算引擎
 
-## 📊 性能优化
+### AI集成层
+- **Claude模拟器**: 智能代码生成和分析
+- **MCP工具**: Model Context Protocol集成接口
+- **终端桥接**: 安全命令执行
 
-### 模型选择
+## 📁 目录结构
 
-根据你的硬件选择合适的模型：
+```
+本地llm项目/
+├── ai-monitor/                    # 统一AI监理系统
+│   ├── core/                      # Python核心服务
+│   ├── performance/go/            # Go微服务
+│   ├── performance/rust/          # Rust引擎
+│   └── tests/                     # 测试套件
+├── claude_code/                   # Claude Code集成
+│   ├── claude_simulator.py       # 核心模拟器
+│   └── mcp_tools/                 # MCP工具集
+├── control_center.sh              # 统一控制脚本
+├── docker-compose.yml             # 服务编排
+├── pyproject.toml                 # Python配置
+└── monitoring/logs/               # 日志目录
+```
 
-- **内存 < 8GB**: 使用 `phi3:mini` 或 `qwen2.5-coder:1.5b`
-- **内存 8-16GB**: 使用 `llama3.2` 或 `qwen2.5-coder:3b`
-- **内存 > 16GB**: 可以尝试更大的模型
+## 🔧 使用控制中心
 
-### 加速技巧
+```bash
+# 启动控制中心
+./control_center.sh
 
-1. **预加载模型**:
-   ```bash
-   # 在启动时预热模型
-   ollama run llama3.2 "test"
-   ```
-
-2. **使用更快的模型**:
-   ```bash
-   # phi3:mini 响应更快
-   ollama pull phi3:mini
-   ```
-
-3. **调整并发**:
-   ```python
-   # 在 uvicorn 中设置 workers
-   uvicorn app:app --workers 4
-   ```
+# 主要功能:
+# 1) 显示服务状态
+# 2) 启动所有服务 (Docker)
+# 3) 停止所有服务
+# 4) 启动开发模式API
+# 5) Claude Code功能
+```
 
 ## 🧪 测试验证
 
-运行完整测试：
-
 ```bash
-python ai-monitor-test-validation.py
+# 安装依赖
+poetry install
+
+# 运行测试
+poetry run pytest
+
+# 代码质量检查
+poetry run ruff check .
 ```
 
-这会检查：
-- ✅ 系统环境
-- ✅ 服务状态
-- ✅ API功能
-- ✅ 性能指标
+## 🛠️ 技术栈
 
-## 🗑️ 卸载
+- **Python**: FastAPI 0.116.1, Pydantic 2.11.7, Uvicorn 0.35.0
+- **Go**: 高并发API服务
+- **Rust**: 零延迟计算引擎
+- **Docker**: 容器化部署
+- **Weaviate**: 向量数据库
+- **Ollama**: 本地LLM引擎
 
-完全删除系统：
+## 📊 监控和日志
 
-```bash
-# 停止服务
-pkill ollama
-pkill uvicorn
+- **健康检查**: 所有服务提供 `/health` 端点
+- **日志管理**: 集中在 `monitoring/logs/` 目录
+- **实时监控**: 通过控制中心查看服务状态
+- **性能指标**: Prometheus集成支持
 
-# 删除目录
-rm -rf ~/ai-monitor-local
-rm -rf ~/ai-monitor-mini
+## 🔒 安全特性
 
-# 删除Docker容器（如果有）
-docker rm -f ai-monitor-redis
-```
+- 本地部署，数据不外传
+- Docker容器隔离
+- JWT认证支持
+- 环境变量配置管理
 
-## 💡 提示
+## 📄 版本信息
 
-1. **不要使用sudo安装Python包**
-2. **始终在虚拟环境中工作**
-3. **定期更新Ollama模型**
-4. **根据需求选择合适的模型大小**
+**当前版本**: v2.2.0  
+**发布日期**: 2025年1月  
+**状态**: 生产就绪
 
-需要帮助？运行 `python diagnose.py` 进行诊断！
+### v2.2.0 更新内容
+- ✅ 统一项目架构
+- ✅ 升级最新技术栈
+- ✅ 集成Claude Code系统
+- ✅ 优化性能层
+- ✅ 完善监控体系
+
+---
+
+> 🚀 **企业级本地LLM解决方案** - 高性能、安全、可扩展

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 本地LLM项目控制中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1419;
+            color: #e4e6eb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 顶部标题栏 */
+        .header {
+            background: linear-gradient(135deg, #1a202c 0%, #232937 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00a2ff, #42b883);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(0, 162, 255, 0.5);
+        }
+        
+        .header p {
+            color: #9ca3af;
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+        
+        /* 主容器 */
+        .container {
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+        
+        /* 系统卡片网格 */
+        .systems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        /* 系统卡片 */
+        .system-card {
+            background: #1a202c;
+            border: 2px solid #374151;
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .system-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00a2ff, #42b883);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .system-card:hover::before {
+            transform: translateX(0);
+        }
+        
+        .system-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 162, 255, 0.3);
+            border-color: #00a2ff;
+        }
+        
+        .system-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .system-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .system-icon {
+            font-size: 2.5em;
+            filter: drop-shadow(0 0 10px rgba(0, 162, 255, 0.5));
+        }
+        
+        .system-name {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #42b883;
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6b7280;
+            position: relative;
+            cursor: help;
+        }
+        
+        .status-indicator.running {
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.stopped {
+            background: #ef4444;
+        }
+        
+        .status-indicator.loading {
+            background: #f59e0b;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 系统描述 */
+        .system-desc {
+            color: #9ca3af;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        /* 服务列表 */
+        .services {
+            margin-bottom: 20px;
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #0f1419;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #374151;
+            transition: all 0.2s;
+        }
+        
+        .service-item:hover {
+            border-color: #00a2ff;
+            transform: translateX(5px);
+        }
+        
+        .service-name {
+            color: #e4e6eb;
+            font-size: 0.9em;
+        }
+        
+        .service-port {
+            color: #00a2ff;
+            font-size: 0.8em;
+            font-family: monospace;
+        }
+        
+        /* 控制按钮 */
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-start {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-stop {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 快速操作区 */
+        .quick-actions {
+            background: #1a202c;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 2px solid #374151;
+        }
+        
+        .quick-actions h2 {
+            color: #42b883;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .action-btn {
+            padding: 15px;
+            background: #0f1419;
+            border: 2px solid #374151;
+            border-radius: 10px;
+            color: #e4e6eb;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .action-btn:hover {
+            border-color: #00a2ff;
+            background: #232937;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 162, 255, 0.3);
+        }
+        
+        .action-btn i {
+            font-size: 2em;
+            color: #00a2ff;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            background: #1a202c;
+            border-top: 2px solid #374151;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .status-info {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-label {
+            color: #9ca3af;
+        }
+        
+        .status-value {
+            color: #42b883;
+            font-weight: 600;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .systems-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 加载动画 */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        
+        .loader.active {
+            display: block;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #374151;
+            border-top-color: #00a2ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        /* 通知提示 */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #1a202c;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            border: 2px solid #374151;
+        }
+        
+        .toast.show {
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .toast.success {
+            border-color: #10b981;
+        }
+        
+        .toast.error {
+            border-color: #ef4444;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <h1>🚀 本地LLM项目控制中心</h1>
+        <p>AI监理系统 v2.1 + Claude-Code Integration System</p>
+    </div>
+    
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 系统卡片 -->
+        <div class="systems-grid">
+            <!-- AI监理系统 -->
+            <div class="system-card" id="ai-monitor-card">
+                <div class="system-header">
+                    <div class="system-title">
+                        <span class="system-icon">🤖</span>
+                        <span class="system-name">AI监理系统</span>
+                    </div>
+                    <div class="status-indicator" id="ai-monitor-status" title="系统状态"></div>
+                </div>
+                <div class="system-desc">
+                    智能代码监理系统，提供代码审查、自动修复和AI辅助功能
+                </div>
+                <div class="services">
+                    <div class="service-item">
+                        <span class="service-name">🐍 Python核心服务</span>
+                        <span class="service-port">:8000</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🧠 Ollama LLM</span>
+                        <span class="service-port">:11434</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🔍 Weaviate向量库</span>
+                        <span class="service-port">:8080</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-start" onclick="startSystem('ai-monitor')">
+                        启动
+                    </button>
+                    <button class="btn btn-stop" onclick="stopSystem('ai-monitor')">
+                        停止
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 性能加速系统 -->
+            <div class="system-card" id="performance-card">
+                <div class="system-header">
+                    <div class="system-title">
+                        <span class="system-icon">⚡</span>
+                        <span class="system-name">性能加速系统</span>
+                    </div>
+                    <div class="status-indicator" id="performance-status" title="系统状态"></div>
+                </div>
+                <div class="system-desc">
+                    高性能计算引擎，提供Go API和Rust零延迟处理能力
+                </div>
+                <div class="services">
+                    <div class="service-item">
+                        <span class="service-name">🚀 Go闪电API</span>
+                        <span class="service-port">:3001</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🦀 Rust零延迟引擎</span>
+                        <span class="service-port">:3002</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">💾 Redis缓存</span>
+                        <span class="service-port">:6379</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-start" onclick="startSystem('performance')">
+                        启动
+                    </button>
+                    <button class="btn btn-stop" onclick="stopSystem('performance')">
+                        停止
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Claude Code系统 -->
+            <div class="system-card" id="claude-code-card">
+                <div class="system-header">
+                    <div class="system-title">
+                        <span class="system-icon">🔧</span>
+                        <span class="system-name">Claude Code系统</span>
+                    </div>
+                    <div class="status-indicator" id="claude-code-status" title="系统状态"></div>
+                </div>
+                <div class="system-desc">
+                    AI代码生成系统，支持项目创建、代码分析和批量重构
+                </div>
+                <div class="services">
+                    <div class="service-item">
+                        <span class="service-name">📝 代码生成器</span>
+                        <span class="service-port">claude</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🔍 代码分析器</span>
+                        <span class="service-port">helper</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🔄 批量处理器</span>
+                        <span class="service-port">mcp</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-start" onclick="startSystem('claude-code')">
+                        启动
+                    </button>
+                    <button class="btn btn-stop" onclick="stopSystem('claude-code')">
+                        停止
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 声音系统 -->
+            <div class="system-card" id="voice-card">
+                <div class="system-header">
+                    <div class="system-title">
+                        <span class="system-icon">🔊</span>
+                        <span class="system-name">声音系统</span>
+                    </div>
+                    <div class="status-indicator" id="voice-status" title="系统状态"></div>
+                </div>
+                <div class="system-desc">
+                    文本转语音服务，支持多种声音和情感化语音播报
+                </div>
+                <div class="services">
+                    <div class="service-item">
+                        <span class="service-name">🎤 TTS服务</span>
+                        <span class="service-port">:5001</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🎵 音频处理</span>
+                        <span class="service-port">:5002</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-start" onclick="startSystem('voice')">
+                        启动
+                    </button>
+                    <button class="btn btn-stop" onclick="stopSystem('voice')">
+                        停止
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 记忆系统 -->
+            <div class="system-card" id="memory-card">
+                <div class="system-header">
+                    <div class="system-title">
+                        <span class="system-icon">🧠</span>
+                        <span class="system-name">记忆系统</span>
+                    </div>
+                    <div class="status-indicator" id="memory-status" title="系统状态"></div>
+                </div>
+                <div class="system-desc">
+                    向量数据库和知识管理系统，提供长期记忆和智能检索
+                </div>
+                <div class="services">
+                    <div class="service-item">
+                        <span class="service-name">💾 向量存储</span>
+                        <span class="service-port">Weaviate</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">🔍 知识检索</span>
+                        <span class="service-port">:8080</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-start" onclick="startSystem('memory')">
+                        启动
+                    </button>
+                    <button class="btn btn-stop" onclick="stopSystem('memory')">
+                        停止
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 监控系统 -->
+            <div class="system-card" id="monitor-card">
+                <div class="system-header">
+                    <div class="system-title">
+                        <span class="system-icon">📊</span>
+                        <span class="system-name">监控系统</span>
+                    </div>
+                    <div class="status-indicator" id="monitor-status" title="系统状态"></div>
+                </div>
+                <div class="system-desc">
+                    系统监控和日志管理，实时追踪服务状态和性能指标
+                </div>
+                <div class="services">
+                    <div class="service-item">
+                        <span class="service-name">📈 性能监控</span>
+                        <span class="service-port">metrics</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">📝 日志系统</span>
+                        <span class="service-port">logs</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-start" onclick="startSystem('monitor')">
+                        启动
+                    </button>
+                    <button class="btn btn-stop" onclick="stopSystem('monitor')">
+                        停止
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 快速操作 -->
+        <div class="quick-actions">
+            <h2>⚡ 快速操作</h2>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="quickAction('start-all')">
+                    <i>🚀</i>
+                    <span>启动所有服务</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('stop-all')">
+                    <i>🛑</i>
+                    <span>停止所有服务</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('restart-all')">
+                    <i>🔄</i>
+                    <span>重启所有服务</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('check-health')">
+                    <i>🏥</i>
+                    <span>健康检查</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('view-logs')">
+                    <i>📋</i>
+                    <span>查看日志</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('clean-cache')">
+                    <i>🧹</i>
+                    <span>清理缓存</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('create-project')">
+                    <i>📁</i>
+                    <span>创建项目</span>
+                </button>
+                <button class="action-btn" onclick="quickAction('open-docs')">
+                    <i>📚</i>
+                    <span>查看文档</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="status-info">
+            <div class="status-item">
+                <span class="status-label">CPU:</span>
+                <span class="status-value" id="cpu-usage">--</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">内存:</span>
+                <span class="status-value" id="memory-usage">--</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">运行时间:</span>
+                <span class="status-value" id="uptime">--</span>
+            </div>
+        </div>
+        <div class="status-info">
+            <div class="status-item">
+                <span class="status-label">版本:</span>
+                <span class="status-value">v2.1.0</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">最后更新:</span>
+                <span class="status-value" id="last-update">--</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载动画 -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+    </div>
+    
+    <!-- 通知提示 -->
+    <div class="toast" id="toast">
+        <span id="toast-message"></span>
+    </div>
+    
+    <script>
+        // API基础URL
+        const API_BASE = 'http://localhost:8888';
+        
+        // 系统状态
+        let systemStatus = {
+            'ai-monitor': 'stopped',
+            'performance': 'stopped',
+            'claude-code': 'stopped',
+            'voice': 'stopped',
+            'memory': 'stopped',
+            'monitor': 'stopped'
+        };
+        
+        // 启动系统
+        async function startSystem(systemName) {
+            showLoader();
+            updateSystemStatus(systemName, 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/system/${systemName}/start`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    updateSystemStatus(systemName, 'running');
+                    showToast(`${getSystemDisplayName(systemName)} 启动成功`, 'success');
+                } else {
+                    throw new Error('启动失败');
+                }
+            } catch (error) {
+                updateSystemStatus(systemName, 'stopped');
+                showToast(`${getSystemDisplayName(systemName)} 启动失败: ${error.message}`, 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+        
+        // 停止系统
+        async function stopSystem(systemName) {
+            showLoader();
+            updateSystemStatus(systemName, 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/system/${systemName}/stop`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    updateSystemStatus(systemName, 'stopped');
+                    showToast(`${getSystemDisplayName(systemName)} 已停止`, 'success');
+                } else {
+                    throw new Error('停止失败');
+                }
+            } catch (error) {
+                showToast(`${getSystemDisplayName(systemName)} 停止失败: ${error.message}`, 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+        
+        // 快速操作
+        async function quickAction(action) {
+            switch(action) {
+                case 'start-all':
+                    showLoader();
+                    for (let system of Object.keys(systemStatus)) {
+                        await startSystem(system);
+                    }
+                    hideLoader();
+                    break;
+                    
+                case 'stop-all':
+                    showLoader();
+                    for (let system of Object.keys(systemStatus)) {
+                        await stopSystem(system);
+                    }
+                    hideLoader();
+                    break;
+                    
+                case 'restart-all':
+                    await quickAction('stop-all');
+                    setTimeout(() => quickAction('start-all'), 2000);
+                    break;
+                    
+                case 'check-health':
+                    checkSystemHealth();
+                    break;
+                    
+                case 'view-logs':
+                    window.open(`${API_BASE}/logs`, '_blank');
+                    break;
+                    
+                case 'clean-cache':
+                    cleanCache();
+                    break;
+                    
+                case 'create-project':
+                    createProject();
+                    break;
+                    
+                case 'open-docs':
+                    window.open(`${API_BASE}/docs`, '_blank');
+                    break;
+            }
+        }
+        
+        // 更新系统状态
+        function updateSystemStatus(systemName, status) {
+            systemStatus[systemName] = status;
+            const indicator = document.getElementById(`${systemName}-status`);
+            
+            indicator.className = 'status-indicator';
+            indicator.classList.add(status);
+            
+            // 更新按钮状态
+            const card = document.getElementById(`${systemName}-card`);
+            const startBtn = card.querySelector('.btn-start');
+            const stopBtn = card.querySelector('.btn-stop');
+            
+            if (status === 'running') {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            } else if (status === 'stopped') {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            } else if (status === 'loading') {
+                startBtn.disabled = true;
+                stopBtn.disabled = true;
+            }
+        }
+        
+        // 获取系统显示名称
+        function getSystemDisplayName(systemName) {
+            const names = {
+                'ai-monitor': 'AI监理系统',
+                'performance': '性能加速系统',
+                'claude-code': 'Claude Code系统',
+                'voice': '声音系统',
+                'memory': '记忆系统',
+                'monitor': '监控系统'
+            };
+            return names[systemName] || systemName;
+        }
+        
+        // 显示/隐藏加载动画
+        function showLoader() {
+            document.getElementById('loader').classList.add('active');
+        }
+        
+        function hideLoader() {
+            document.getElementById('loader').classList.remove('active');
+        }
+        
+        // 显示提示信息
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 检查系统健康状态
+        async function checkSystemHealth() {
+            showLoader();
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                // 更新所有系统状态
+                for (let [system, status] of Object.entries(data.systems)) {
+                    updateSystemStatus(system, status ? 'running' : 'stopped');
+                }
+                
+                // 更新资源使用情况
+                updateResourceUsage(data.resources);
+                
+                showToast('健康检查完成', 'success');
+            } catch (error) {
+                showToast('健康检查失败: ' + error.message, 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+        
+        // 更新资源使用情况
+        function updateResourceUsage(resources) {
+            document.getElementById('cpu-usage').textContent = `${resources.cpu}%`;
+            document.getElementById('memory-usage').textContent = `${resources.memory}%`;
+            document.getElementById('uptime').textContent = formatUptime(resources.uptime);
+        }
+        
+        // 格式化运行时间
+        function formatUptime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+        
+        // 清理缓存
+        async function cleanCache() {
+            if (confirm('确定要清理所有缓存吗？')) {
+                showLoader();
+                try {
+                    const response = await fetch(`${API_BASE}/api/cache/clean`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        showToast('缓存清理成功', 'success');
+                    } else {
+                        throw new Error('清理失败');
+                    }
+                } catch (error) {
+                    showToast('缓存清理失败: ' + error.message, 'error');
+                } finally {
+                    hideLoader();
+                }
+            }
+        }
+        
+        // 创建项目
+        function createProject() {
+            const projectName = prompt('请输入项目名称:');
+            if (projectName) {
+                const projectType = prompt('请输入项目类型 (Python/JavaScript/Go):') || 'Python';
+                
+                showLoader();
+                // 模拟创建项目
+                setTimeout(() => {
+                    hideLoader();
+                    showToast(`项目 ${projectName} 创建成功`, 'success');
+                }, 2000);
+            }
+        }
+        
+        // 定期更新状态
+        setInterval(() => {
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+            // 每30秒自动检查一次健康状态
+            checkSystemHealth();
+        }, 30000);
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            // 初始检查
+            checkSystemHealth();
+            
+            // 设置初始时间
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        };
+    </script>
+</body>
+</html>

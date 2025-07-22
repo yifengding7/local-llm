@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI监理系统 v2.1 技术架构图</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #0f1419;
+            color: #e4e6eb;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #00a2ff;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(0, 162, 255, 0.5);
+        }
+        .architecture {
+            background: #1a202c;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        .layer {
+            margin-bottom: 40px;
+            background: #232937;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #374151;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .layer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 162, 255, 0.2);
+            border-color: #00a2ff;
+        }
+        .layer-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #42b883;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .layer-icon {
+            font-size: 1.2em;
+        }
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .component {
+            background: #0f1419;
+            border: 1px solid #4a5568;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .component::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00a2ff, #42b883);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .component:hover::before {
+            transform: translateX(0);
+        }
+        .component:hover {
+            background: #1a1f2e;
+            border-color: #00a2ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 162, 255, 0.3);
+        }
+        .component-title {
+            font-weight: 600;
+            color: #e4e6eb;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .component-desc {
+            color: #9ca3af;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .tech-stack {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #374151;
+        }
+        .tech-item {
+            display: inline-block;
+            background: #374151;
+            color: #00a2ff;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin: 3px;
+            transition: all 0.2s;
+        }
+        .tech-item:hover {
+            background: #00a2ff;
+            color: #0f1419;
+            transform: scale(1.05);
+        }
+        .flow-arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #4a5568;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #42b883;
+            animation: blink 2s infinite;
+            margin-right: 5px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .mcp-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #0f1419;
+            border-radius: 10px;
+            border: 2px dashed #4a5568;
+        }
+        .mcp-title {
+            color: #f59e0b;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .data-flow {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a202c 0%, #232937 100%);
+            border-radius: 15px;
+            border: 2px solid #374151;
+        }
+        .flow-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .flow-node {
+            background: #0f1419;
+            border: 2px solid #42b883;
+            border-radius: 10px;
+            padding: 15px 25px;
+            font-weight: 600;
+            color: #42b883;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .flow-node:hover {
+            background: #42b883;
+            color: #0f1419;
+            transform: scale(1.05);
+        }
+        .flow-connector {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #42b883 0%, #00a2ff 50%, #42b883 100%);
+            position: relative;
+            min-width: 50px;
+        }
+        .flow-connector::after {
+            content: '▶';
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            color: #00a2ff;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI监理系统 v2.1 技术架构</h1>
+        
+        <div class="architecture">
+            <!-- 前端层 -->
+            <div class="layer">
+                <div class="layer-title">
+                    <span class="layer-icon">🖥️</span>
+                    <span class="status-indicator"></span>
+                    前端展示层 (Presentation Layer)
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">GUI桌面应用</div>
+                        <div class="component-desc">
+                            基于tkinter的图形化界面，提供直观的操作体验
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Python tkinter</span>
+                            <span class="tech-item">gui_menu.py</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">命令行界面</div>
+                        <div class="component-desc">
+                            Shell脚本菜单系统，支持快速操作
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Bash Script</span>
+                            <span class="tech-item">menu.sh</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">Web API文档</div>
+                        <div class="component-desc">
+                            FastAPI自动生成的交互式API文档
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Swagger UI</span>
+                            <span class="tech-item">OpenAPI</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇</div>
+
+            <!-- API层 -->
+            <div class="layer">
+                <div class="layer-title">
+                    <span class="layer-icon">🔌</span>
+                    <span class="status-indicator"></span>
+                    API服务层 (API Service Layer)
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">RESTful API</div>
+                        <div class="component-desc">
+                            OpenAI兼容的API接口，支持聊天、监理、语音等功能
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">FastAPI</span>
+                            <span class="tech-item">Uvicorn</span>
+                            <span class="tech-item">JWT Auth</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">智能路由器</div>
+                        <div class="component-desc">
+                            根据任务类型智能分配到不同的AI模型
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">router.py</span>
+                            <span class="tech-item">TaskType</span>
+                            <span class="tech-item">ModelConfig</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">监理代理</div>
+                        <div class="component-desc">
+                            自动检查代码规范并生成修复补丁
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">monitor_agent.py</span>
+                            <span class="tech-item">GitPython</span>
+                            <span class="tech-item">Auto-patch</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇</div>
+
+            <!-- 核心引擎层 -->
+            <div class="layer">
+                <div class="layer-title">
+                    <span class="layer-icon">⚙️</span>
+                    <span class="status-indicator"></span>
+                    核心引擎层 (Core Engine Layer)
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">LLM运行时</div>
+                        <div class="component-desc">
+                            本地大语言模型运行环境，支持多模型切换
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Ollama</span>
+                            <span class="tech-item">phi3-mini</span>
+                            <span class="tech-item">qwen:8b</span>
+                            <span class="tech-item">deepseek-coder</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">极致向量引擎</div>
+                        <div class="component-desc">
+                            高性能向量检索，<50ms查询延迟，千万级容量
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Weaviate</span>
+                            <span class="tech-item">Qwen3-Embedding-8B</span>
+                            <span class="tech-item">HNSW索引</span>
+                            <span class="tech-item">混合检索</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">语音服务</div>
+                        <div class="component-desc">
+                            文本转语音功能，支持情感化语音播报
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">TTS Service</span>
+                            <span class="tech-item">System Voice</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇</div>
+
+            <!-- 极致性能层 -->
+            <div class="layer" style="background: linear-gradient(135deg, #1a202c 0%, #374151 100%); border-color: #00a2ff;">
+                <div class="layer-title">
+                    <span class="layer-icon">🔥</span>
+                    <span class="status-indicator"></span>
+                    极致性能层 (Ultimate Performance Layer)
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">Mojo AI计算</div>
+                        <div class="component-desc">
+                            超级性能AI计算，利用M3 Max神经引擎15.8 TOPS
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Mojo语言</span>
+                            <span class="tech-item">Metal GPU</span>
+                            <span class="tech-item">神经引擎</span>
+                            <span class="tech-item">SIMD优化</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">Rust零延迟引擎</div>
+                        <div class="component-desc">
+                            零拷贝内存管理，Tokio+Rayon双引擎并发
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Rust</span>
+                            <span class="tech-item">64GB统一内存</span>
+                            <span class="tech-item">12核并行</span>
+                            <span class="tech-item">零GC</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">Go闪电API</div>
+                        <div class="component-desc">
+                            Fiber框架极速路由，无限QPS支持
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Go Fiber</span>
+                            <span class="tech-item">gRPC</span>
+                            <span class="tech-item">100k并发</span>
+                            <span class="tech-item">10ms P50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">⬇</div>
+
+            <!-- 基础设施层 -->
+            <div class="layer">
+                <div class="layer-title">
+                    <span class="layer-icon">🏗️</span>
+                    <span class="status-indicator"></span>
+                    基础设施层 (Infrastructure Layer)
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">脚手架系统</div>
+                        <div class="component-desc">
+                            三大核心脚手架：环境搭建、项目结构、AI协作
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Scaffold Hub</span>
+                            <span class="tech-item">规则引擎</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">日志系统</div>
+                        <div class="component-desc">
+                            结构化日志记录，支持监控和调试
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">Loguru</span>
+                            <span class="tech-item">AI决策日志</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">配置管理</div>
+                        <div class="component-desc">
+                            集中式配置管理，支持热更新
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">JSON Config</span>
+                            <span class="tech-item">环境变量</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MCP集成 -->
+            <div class="mcp-section">
+                <div class="mcp-title">
+                    <span class="layer-icon">🔗</span>
+                    MCP (Model Context Protocol) 集成
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">文件系统访问</div>
+                        <div class="component-desc">多路径文件系统服务器</div>
+                        <div class="tech-stack">
+                            <span class="tech-item">@modelcontextprotocol/server-filesystem</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">GitHub集成</div>
+                        <div class="component-desc">代码仓库管理和协作</div>
+                        <div class="tech-stack">
+                            <span class="tech-item">@modelcontextprotocol/server-github</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">扩展能力</div>
+                        <div class="component-desc">支持更多MCP工具的动态集成</div>
+                        <div class="tech-stack">
+                            <span class="tech-item">MCP Installer</span>
+                            <span class="tech-item">Plugin System</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据流向图 -->
+            <div class="data-flow">
+                <div class="layer-title">
+                    <span class="layer-icon">📊</span>
+                    数据流向图 (Data Flow)
+                </div>
+                <div class="flow-diagram">
+                    <div class="flow-node">用户请求</div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-node">API认证</div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-node">任务路由</div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-node">模型处理</div>
+                    <div class="flow-connector"></div>
+                    <div class="flow-node">结果返回</div>
+                </div>
+            </div>
+
+            <!-- Apple M3 Max 优化 -->
+            <div class="layer" style="margin-top: 30px; background: linear-gradient(135deg, #0f1419 0%, #1a202c 100%); border: 2px solid #00ff88;">
+                <div class="layer-title">
+                    <span class="layer-icon">🍎</span>
+                    Apple M3 Max 硬件优化 (Hardware Optimization)
+                </div>
+                <div class="components">
+                    <div class="component">
+                        <div class="component-title">统一内存架构</div>
+                        <div class="component-desc">
+                            64GB UMA零拷贝优化，CPU/GPU共享内存
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">向量缓存 32GB</span>
+                            <span class="tech-item">模型权重 8GB</span>
+                            <span class="tech-item">HNSW索引 12GB</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">异构计算优化</div>
+                        <div class="component-desc">
+                            12核CPU + 38核GPU + 15.8 TOPS神经引擎
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">4性能核</span>
+                            <span class="tech-item">8效率核</span>
+                            <span class="tech-item">Metal计算</span>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">极致性能目标</div>
+                        <div class="component-desc">
+                            查询<50ms，千万向量，无限QPS
+                        </div>
+                        <div class="tech-stack">
+                            <span class="tech-item">P99延迟 50ms</span>
+                            <span class="tech-item">10M向量</span>
+                            <span class="tech-item">400GB/s带宽</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
