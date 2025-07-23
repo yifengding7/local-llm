@@ -1,0 +1,65 @@
+# Agent Framework Acceptance Test Spec
+# 针对 Flowise v3 / CrewAI 0.14 / LangGraph 0.5 的验收测试清单
+
+metadata:
+  name: "agent-framework-validation"
+  version: "1.0.0"
+  description: "三大框架部署后的功能与稳定性验收"
+  created_date: "2025-07-22"
+
+pre_checks:
+  - id: "PRE-001"
+    category: "environment"
+    priority: "critical"
+    name: "Docker 服务检查"
+    command: "docker info"
+    expected: "return code 0"
+    status: "pending"
+
+  - id: "PRE-002"
+    category: "environment"
+    priority: "high"
+    name: "Python 版本 >= 3.10"
+    command: "python3 --version"
+    expected: "Python 3.10+"
+    status: "pending"
+
+tests:
+  flowise:
+    - id: "FLOW-001"
+      name: "Flowise 容器运行"
+      command: "docker ps | grep flowise"
+      expected: "容器状态为 Up"
+      status: "pending"
+    - id: "FLOW-002"
+      name: "Flowise UI 可访问"
+      command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:3000"
+      expected: "200"
+      status: "pending"
+
+  crewai:
+    - id: "CREW-001"
+      name: "CrewAI pipeline 执行"
+      command: "crewai run pipeline.yml"
+      expected: "Finished successfully"
+      status: "pending"
+
+  langgraph:
+    - id: "GRAPH-001"
+      name: "LangGraph demo 执行"
+      command: "python demo_graph.py"
+      expected: "Workflow completed"
+      status: "pending"
+
+integration_tests:
+  - id: "INT-001"
+    name: "Flowise 调用 CrewAI 工具链"
+    command: "curl -X POST http://localhost:3000/api/trigger -d '{\"task\":\"test\"}'"
+    expected: "200"
+    status: "pending"
+  - id: "INT-002"
+    name: "CrewAI 调用 LangGraph 服务"
+    command: "python crew_to_graph.py"
+    expected: "Success"
+    status: "pending"
+

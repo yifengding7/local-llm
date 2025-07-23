@@ -1,0 +1,90 @@
+# Agent Framework Intent Spec
+# 面向 Flowise v3 / CrewAI 0.14 / LangGraph 0.5 的部署意图说明
+
+metadata:
+  name: "agent-framework-intent"
+  version: "1.0.0"
+  description: "基于三大热门Agent框架的统一部署计划"
+  created_date: "2025-07-22"
+
+# 目标概述
+objectives:
+  - "两小时内跑通最小部署"
+  - "官方Docker Compose示例"
+  - "后续可扩展为企业级工作流"
+
+# 框架选择
+frameworks:
+  - name: "Flowise"
+    version: "3.0.2"
+    role: "快速POC和拖拽式设计"
+    deploy:
+      method: "docker"
+      command: "docker run -d --name flowise -p 3000:3000 -e 'FLOWISE_USERNAME=admin' -e 'FLOWISE_PASSWORD=1234' flowiseai/flowise:3.0.2"
+  - name: "CrewAI"
+    version: "0.140.0"
+    role: "多Agent任务编排"
+    deploy:
+      method: "pip"
+      command: |
+        pip install crewai==0.140.0
+        crewai init
+        crewai run pipeline.yml
+  - name: "LangGraph"
+    version: "0.5"
+    role: "复杂控制与企业级扩展"
+    deploy:
+      method: "pip"
+      command: |
+        pip install langgraph[all]
+        python demo_graph.py
+
+# 关键组件
+components:
+  flowise:
+    features:
+      - RAG
+      - AgentFlow
+      - Webhook
+      - JWT登录
+  crewai:
+    features:
+      - 任务/Agent/工具分层
+      - Guardrail
+      - YAML Pipeline
+      - Tracing
+  langgraph:
+    features:
+      - 状态持久化
+      - 循环与分支控制
+      - LangSmith监控
+
+# 部署步骤
+steps:
+  - id: "STEP-1"
+    name: "准备环境"
+    tasks:
+      - "安装 Docker 及 Compose"
+      - "安装 Python 3.10+"
+  - id: "STEP-2"
+    name: "启动 Flowise"
+    run: "{{frameworks[0].deploy.command}}"
+  - id: "STEP-3"
+    name: "初始化 CrewAI"
+    run: "{{frameworks[1].deploy.command}}"
+  - id: "STEP-4"
+    name: "运行 LangGraph 示例"
+    run: "{{frameworks[2].deploy.command}}"
+  - id: "STEP-5"
+    name: "验证功能"
+    tasks:
+      - "确保 Flowise UI 可访问"
+      - "CrewAI pipeline 正常执行"
+      - "LangGraph 示例输出正确"
+
+# 扩展建议
+extensions:
+  - "将 Flowise 流程保存为 JSON 版本控制"
+  - "在 CrewAI 中定义 YAML pipeline 以便团队协作"
+  - "使用 LangGraph 处理并发与复杂回溯需求"
+

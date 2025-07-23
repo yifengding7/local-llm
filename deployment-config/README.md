@@ -9,6 +9,8 @@ deployment-config/
 ├── environment-config.yaml           # 环境管理配置
 ├── architecture-compliance.yaml      # 架构合规检查
 ├── validation-checklist.yaml        # 验证清单
+├── agent-framework-intent.yaml      # Agent框架部署意图
+├── agent-framework-test.yaml        # Agent框架验收测试
 ├── DEPLOYMENT-GUIDE.md              # 详细部署指南
 └── scripts/                         # 支持脚本
     ├── auto_review.sh               # 自动代码审查
@@ -58,7 +60,22 @@ deployment-config/
   - 安全性检查
 - **使用**: 部署质量保证
 
-#### 5. `DEPLOYMENT-GUIDE.md`
+#### 5. `agent-framework-intent.yaml`
+- **作用**: Agent框架部署计划
+- **内容**:
+  - Flowise、CrewAI、LangGraph 部署命令
+  - 关键组件和扩展建议
+- **使用**: 选择框架并规划部署
+
+#### 6. `agent-framework-test.yaml`
+- **作用**: Agent框架验收测试
+- **内容**:
+  - 环境预检查
+  - 单框架功能测试
+  - 集成验证
+- **使用**: 部署完成后的质量确认
+
+#### 7. `DEPLOYMENT-GUIDE.md`
 - **作用**: 详细部署指南
 - **内容**:
   - 完整的部署流程说明
